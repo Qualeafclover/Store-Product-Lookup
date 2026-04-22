@@ -5,7 +5,7 @@ DB_PORT ?= 5432
 DB_PASSWORD ?= pangsaupass
 BACKEND_DIR := services
 
-.PHONY: install install-node install-postgres install-backend db-start db-drop db-create db-schema db-reset backend-run
+.PHONY: install install-node install-postgres install-backend db-start db-drop db-create db-schema db-reset backend-run customer-serve store-serve
 
 install: install-node install-postgres install-backend
 
@@ -49,3 +49,9 @@ backend-run:
 		DB_PASSWORD=$(DB_PASSWORD) \
 		DB_NAME=$(DB_NAME) \
 		npm run dev
+
+customer-serve:
+	cd apps/customer && python3 -m http.server 5500 --bind 0.0.0.0
+
+store-serve:
+	cd apps/store && python3 -m http.server 5501 --bind 0.0.0.0

@@ -7,8 +7,16 @@ make db-start
 make db-set-password
 # Resets DB based on the database schema
 make db-reset
+```
+
+```bash
 # Run the backend server
 make backend-run
+```
+```bash
+# Run the frontend servers
+make customer-serve
+make store-serve
 ```
 
 ```bash
