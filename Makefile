@@ -5,9 +5,9 @@ DB_PORT ?= 5432
 DB_PASSWORD ?= pangsaupass
 BACKEND_DIR := services
 
-.PHONY: install install-node install-postgres db-start db-drop db-create db-schema db-reset backend-install backend-run
+.PHONY: install install-node install-postgres install-backend db-start db-drop db-create db-schema db-reset backend-run
 
-install: install-node install-postgres backend-install
+install: install-node install-postgres install-backend
 
 install-node:
 	sudo apt-get update
