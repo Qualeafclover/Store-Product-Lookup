@@ -26,6 +26,9 @@ db-set-password:
 db-start:
 	sudo service postgresql start || sudo systemctl start postgresql
 
+db-stop:
+	sudo service postgresql stop || sudo systemctl stop postgresql
+
 db-drop:
 	sudo -u $(DB_USER) sh -lc 'cd /tmp && dropdb --if-exists $(DB_NAME)'
 
