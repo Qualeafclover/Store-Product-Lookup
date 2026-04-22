@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<head></head>
+<body>
+    <h1>Customer App</h1>
+    <button onclick="testFetch()">Click Me</button>
+</body>
+<script>
+    async function testFetch() {
+        const res = await fetch('http://localhost:8080/customer/test', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await res.json();
+        console.log(data);
+    }
+</script>
+</html>

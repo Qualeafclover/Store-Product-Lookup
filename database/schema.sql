@@ -1,8 +1,7 @@
-DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS test_table;
 
-CREATE TABLE products (
+CREATE TABLE test_table (
     id SERIAL PRIMARY KEY,
-    sku TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     category TEXT NOT NULL,
     price NUMERIC(10, 2) NOT NULL,
@@ -10,9 +9,9 @@ CREATE TABLE products (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO products (sku, name, category, price, in_stock) VALUES
-    ('SKU-1001', 'Notebook', 'Stationery', 4.99, TRUE),
-    ('SKU-1002', 'Water Bottle', 'Lifestyle', 14.50, TRUE),
-    ('SKU-1003', 'Desk Lamp', 'Office', 32.00, FALSE),
-    ('SKU-1004', 'USB-C Cable', 'Electronics', 9.75, TRUE),
-    ('SKU-1005', 'Backpack', 'Travel', 49.00, TRUE);
+INSERT INTO test_table (name, category, price, in_stock) VALUES
+    ('Notebook', 'Stationery', 4.99, TRUE),
+    ('Water Bottle', 'Lifestyle', 14.50, TRUE),
+    ('Desk Lamp', 'Office', 32.00, FALSE),
+    ('USB-C Cable', 'Electronics', 9.75, TRUE),
+    ('Backpack', 'Travel', 49.00, TRUE);

@@ -1,10 +1,13 @@
 DB_NAME ?= store_product_lookup
 DB_USER ?= postgres
+DB_HOST ?= localhost
+DB_PORT ?= 5432
+DB_PASSWORD ?= pangsaupass
 BACKEND_DIR := services
 
 .PHONY: install install-node install-postgres db-start db-drop db-create db-schema db-reset backend-install backend-run
 
-install: install-node install-postgres
+install: install-node install-postgres backend-install
 
 install-node:
 	sudo apt-get update
@@ -13,6 +16,12 @@ install-node:
 install-postgres:
 	sudo apt-get update
 	sudo apt-get install -y postgresql postgresql-contrib
+
+install-backend:
+	cd $(BACKEND_DIR) && npm install
+
+db-set-password:
+	sudo -u $(DB_USER) psql -c "ALTER USER $(DB_USER) WITH PASSWORD '$(DB_PASSWORD)';"
 
 db-start:
 	sudo service postgresql start || sudo systemctl start postgresql
@@ -29,8 +38,11 @@ db-schema:
 
 db-reset: db-drop db-create db-schema
 
-backend-install:
-	cd $(BACKEND_DIR) && npm install
-
 backend-run:
-	cd $(BACKEND_DIR) && npm run dev
+	cd $(BACKEND_DIR) && \
+		DB_HOST=$(DB_HOST) \
+		DB_PORT=$(DB_PORT) \
+		DB_USER=$(DB_USER) \
+		DB_PASSWORD=$(DB_PASSWORD) \
+		DB_NAME=$(DB_NAME) \
+		npm run dev
