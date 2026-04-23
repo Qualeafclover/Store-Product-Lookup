@@ -21,7 +21,7 @@ install-backend:
 	cd $(BACKEND_DIR) && npm install
 
 db-set-password:
-	sudo -u $(DB_USER) psql -c "ALTER USER $(DB_USER) WITH PASSWORD '$(DB_PASSWORD)';"
+	sudo -u $(DB_USER) sh -lc "cd /tmp && psql -c \"ALTER USER $(DB_USER) WITH PASSWORD '$(DB_PASSWORD)';\""
 
 db-start:
 	sudo service postgresql start || sudo systemctl start postgresql
