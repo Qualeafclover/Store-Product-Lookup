@@ -2,7 +2,7 @@ DB_NAME ?= store_product_lookup
 DB_USER ?= postgres
 DB_HOST ?= localhost
 DB_PORT ?= 5432
-DB_PASSWORD ?= pangsaupass
+DB_PASSWORD ?= test
 BACKEND_DIR := services
 
 .PHONY: install install-node install-postgres install-backend db-start db-drop db-create db-schema db-reset backend-run customer-serve store-serve
