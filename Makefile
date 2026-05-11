@@ -17,7 +17,7 @@ install-packages:
 	nvm install 24 && \
 	nvm use 24
 	sudo apt-get update
-	sudo apt-get install -y postgresql postgresql-contrib
+	sudo apt-get install -y postgresql postgresql-contrib unzip
 
 install-backend:
 	cd $(BACKEND_DIR) && npm install
