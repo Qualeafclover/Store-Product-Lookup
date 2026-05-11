@@ -10,6 +10,11 @@ make db-reset
 ```
 
 ```bash
+# Downloads quantized model from google drive
+make download-model
+```
+
+```bash
 # Run the backend server
 make backend-run
 ```
