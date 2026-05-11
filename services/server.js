@@ -25,7 +25,7 @@ const server = http.createServer(async (req, res) => {
 
   if (req.url === "/customer/test" && req.method === "GET") {
     try {
-      const result = await pool.query("SELECT * FROM test_table ORDER BY id");
+      const result = await pool.query("SELECT * FROM products ORDER BY id");
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(result.rows));
       return;
