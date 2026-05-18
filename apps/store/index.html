@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ショップ</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Yu Gothic', 'Hiragino Sans', sans-serif; background: #f5f5f5; color: #111; font-size: 14px; }
+
+/* ===== 戻るボタン ===== */
+.back-btn { display: inline-block; margin-bottom: 16px; padding: 6px 16px; border: 1px solid #999; background: #fff; cursor: pointer; font-size: 13px; }
+.back-btn:hover { background: #eee; }
+
+/* ===== ページ ===== */
+.page { display: none; padding: 24px; }
+.page.active { display: block; }
+
+/* ===== ホーム ===== */
+.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 600px; }
+.home-box { border: 1px solid #999; padding: 24px 20px; min-height: 120px; font-size: 18px; background: #fff; cursor: pointer; display: flex; align-items: flex-start; }
+.home-box:hover { background: #f0f0f0; }
+h1 { font-size: 22px; font-weight: 700; border: 2px solid #000; padding: 6px 32px; margin-bottom: 28px; display: inline-block; }
+h2 { font-size: 16px; font-weight: 700; margin-bottom: 14px; border-left: 4px solid #111; padding-left: 10px; }
+
+/* ===== ツールバー ===== */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; background: #fff; border: 1px solid #ccc; padding: 10px 14px; }
+.toolbar label { font-size: 13px; color: #555; }
+.toolbar input[type=text] { border: 1px solid #aaa; padding: 5px 8px; font-size: 13px; width: 220px; }
+.toolbar select { border: 1px solid #aaa; padding: 5px 8px; font-size: 13px; background: #fff; }
+.toolbar button { border: 1px solid #aaa; padding: 5px 14px; font-size: 13px; background: #fff; cursor: pointer; }
+.toolbar button:hover { background: #eee; }
+.toolbar .sep { color: #ccc; }
+
+/* ===== テーブル ===== */
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th { background: #222; color: #fff; padding: 8px 10px; text-align: left; font-weight: 500; font-size: 13px; white-space: nowrap; cursor: pointer; user-select: none; }
+th:hover { background: #444; }
+th .sort-icon { margin-left: 4px; opacity: 0.5; font-size: 11px; }
+th.sorted .sort-icon { opacity: 1; }
+td { padding: 7px 10px; border-bottom: 1px solid #e0e0e0; font-size: 13px; vertical-align: middle; }
+tr:hover td { background: #fafafa; }
+.badge-sale { background: #d00; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 2px; margin-left: 6px; }
+.badge-genre { background: #eee; border: 1px solid #ccc; font-size: 11px; padding: 2px 6px; border-radius: 2px; }
+.count-info { font-size: 13px; color: #555; margin-bottom: 8px; }
+
+/* ===== セール ===== */
+.sale-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.live-dot { width: 10px; height: 10px; background: #d00; border-radius: 50%; animation: blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.sale-info { font-size: 13px; color: #555; }
+</style>
+</head>
+<body>
+
+<!-- ===== ホーム ===== -->
+<div class="page active" id="page-home">
+  <h1>ホーム</h1>
+  <div class="home-grid">
+    <div class="home-box" onclick="showPage('search')">商品名<br>から検索</div>
+    <div class="home-box" onclick="showPage('genre')">ジャンル<br>から検索</div>
+    <div class="home-box" onclick="showPage('ranking')">おすすめ<br><small style="font-size:13px;color:#666">（売上順）</small></div>
+    <div class="home-box" onclick="showPage('sale')">セール中！</div>
+  </div>
+</div>
+
+<!-- ===== 商品名から検索 ===== -->
+<div class="page" id="page-search">
+  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+  <h2>商品名から検索</h2>
+  <div class="toolbar">
+    <label>キーワード：</label>
+    <input type="text" id="search-input" placeholder="商品名を入力" oninput="renderSearch()">
+    <span class="sep">|</span>
+    <label>ジャンル：</label>
+    <select id="search-genre" onchange="renderSearch()">
+      <option value="">すべて</option>
+    </select>
+    <span class="sep">|</span>
+    <label>並び替え：</label>
+    <select id="search-sort" onchange="renderSearch()">
+      <option value="id-asc">商品番号 ↑</option>
+      <option value="name-asc">商品名 A→Z</option>
+      <option value="price-asc">価格 安い順</option>
+      <option value="price-desc">価格 高い順</option>
+      <option value="sales-desc">売上 多い順</option>
+    </select>
+    <button onclick="resetSearch()">リセット</button>
+  </div>
+  <div class="count-info" id="search-count"></div>
+  <table id="search-table">
+    <thead>
+      <tr>
+        <th onclick="sortTable('search','id')">商品番号<span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('search','name')">商品名<span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('search','genre')">ジャンル<span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('search','price')">価格<span class="sort-icon">↕</span></th>
+        <th onclick="sortTable('search','sales')">売上数<span class="sort-icon">↕</span></th>
+        <th>セール</th>
+      </tr>
+    </thead>
+    <tbody id="search-tbody"></tbody>
+  </table>
+</div>
+
+<!-- ===== セール中 ===== -->
+<div class="page" id="page-sale">
+  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+  <div class="sale-header">
+    <div class="live-dot"></div>
+    <h2 style="margin:0;border:none;padding:0">セール中の商品</h2>
+    <span class="sale-info" id="sale-updated"></span>
+  </div>
+  <div class="toolbar">
+    <label>ジャンル：</label>
+    <select id="sale-genre" onchange="renderSale()">
+      <option value="">すべて</option>
+    </select>
+    <span class="sep">|</span>
+    <label>並び替え：</label>
+    <select id="sale-sort" onchange="renderSale()">
+      <option value="discount-desc">割引率 高い順</option>
+      <option value="price-asc">価格 安い順</option>
+      <option value="sales-desc">売上 多い順</option>
+    </select>
+  </div>
+  <div class="count-info" id="sale-count"></div>
+  <table>
+    <thead>
+      <tr>
+        <th>商品番号</th>
+        <th>商品名</th>
+        <th>ジャンル</th>
+        <th>通常価格</th>
+        <th>セール価格</th>
+        <th>割引率</th>
+        <th>売上数</th>
+      </tr>
+    </thead>
+    <tbody id="sale-tbody"></tbody>
+  </table>
+</div>
+
+<!-- ===== ジャンル別 ===== -->
+<div class="page" id="page-genre">
+  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+  <h2>ジャンル別</h2>
+  <div class="toolbar">
+    <label>ジャンルを選択：</label>
+    <select id="genre-select" onchange="renderGenre()">
+      <option value="">すべて表示</option>
+    </select>
+    <span class="sep">|</span>
+    <label>並び替え：</label>
+    <select id="genre-sort" onchange="renderGenre()">
+      <option value="id-asc">商品番号 ↑</option>
+      <option value="price-asc">価格 安い順</option>
+      <option value="price-desc">価格 高い順</option>
+      <option value="sales-desc">売上 多い順</option>
+    </select>
+  </div>
+  <div id="genre-sections"></div>
+</div>
+
+<!-- ===== 売上ランキング ===== -->
+<div class="page" id="page-ranking">
+  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+  <h2>売上ランキング</h2>
+  <div class="toolbar">
+    <label>ジャンル：</label>
+    <select id="rank-genre" onchange="renderRanking()">
+      <option value="">すべて</option>
+    </select>
+    <span class="sep">|</span>
+    <label>表示件数：</label>
+    <select id="rank-limit" onchange="renderRanking()">
+      <option value="10">10件</option>
+      <option value="20">20件</option>
+      <option value="50">50件</option>
+      <option value="999">全件</option>
+    </select>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>順位</th>
+        <th>商品番号</th>
+        <th>商品名</th>
+        <th>ジャンル</th>
+        <th>価格</th>
+        <th>売上数</th>
+        <th>売上金額</th>
+      </tr>
+    </thead>
+    <tbody id="rank-tbody"></tbody>
+  </table>
+</div>
+
+<script>
+// ===== ダミーデータ生成 =====
+const GENRES = ['家電','ファッション','食品','書籍','スポーツ','インテリア','コスメ','おもちゃ'];
+const SALE_RATES = [0, 0, 0, 0.1, 0.15, 0.2, 0.25, 0.3, 0.5]; // 0=セールなし
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+const PRODUCTS = Array.from({length: 80}, (_, i) => {
+  const genre = GENRES[i % GENRES.length];
+  const basePrice = rand(500, 50000);
+  const saleRate = SALE_RATES[rand(0, SALE_RATES.length - 1)];
+  const salePrice = saleRate > 0 ? Math.floor(basePrice * (1 - saleRate)) : null;
+  return {
+    id: `P${String(i + 1).padStart(4, '0')}`,
+    name: `${genre}商品 ${String(i + 1).padStart(3, '0')}`,
+    genre,
+    price: basePrice,
+    salePrice,
+    saleRate,
+    sales: rand(0, 3000),
+    isSale: saleRate > 0,
+  };
+});
+
+// セール更新時刻（リアルタイム風）
+function updateSaleTime() {
+  const now = new Date();
+  const fmt = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')} 更新`;
+  const el = document.getElementById('sale-updated');
+  if (el) el.textContent = fmt;
+}
+setInterval(updateSaleTime, 1000);
+updateSaleTime();
+
+// ===== ナビ =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  renderAll();
+}
+
+// ===== セレクト初期化 =====
+function initSelects() {
+  const selects = ['search-genre','sale-genre','genre-select','rank-genre'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    const first = sel.options[0];
+    sel.innerHTML = '';
+    sel.appendChild(first);
+    GENRES.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g; opt.textContent = g;
+      sel.appendChild(opt);
+    });
+  });
+}
+initSelects();
+
+// ===== ソート状態 =====
+const sortState = { search: { key: 'id', asc: true } };
+
+function sortTable(table, key) {
+  if (sortState[table].key === key) {
+    sortState[table].asc = !sortState[table].asc;
+  } else {
+    sortState[table].key = key;
+    sortState[table].asc = true;
+  }
+  if (table === 'search') renderSearch();
+}
+
+function applySort(arr, key, asc) {
+  return [...arr].sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (typeof va === 'string') return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return asc ? va - vb : vb - va;
+  });
+}
+
+function fmt(n) { return n.toLocaleString('ja-JP') + '円'; }
+
+// ===== 商品名検索ページ =====
+function resetSearch() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-genre').value = '';
+  document.getElementById('search-sort').value = 'id-asc';
+  renderSearch();
+}
+
+function renderSearch() {
+  const kw = document.getElementById('search-input').value.toLowerCase();
+  const genre = document.getElementById('search-genre').value;
+  const sortVal = document.getElementById('search-sort').value;
+  const [sKey, sDir] = sortVal.split('-');
+
+  let data = PRODUCTS.filter(p =>
+    (!kw || p.name.toLowerCase().includes(kw)) &&
+    (!genre || p.genre === genre)
+  );
+
+  const keyMap = { id: 'id', name: 'name', price: 'price', sales: 'sales', genre: 'genre' };
+  data = applySort(data, keyMap[sKey] || 'id', sDir !== 'desc');
+
+  document.getElementById('search-count').textContent = `${data.length}件`;
+  const tbody = document.getElementById('search-tbody');
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td>${p.id}</td>
+      <td>${p.name}${p.isSale ? '<span class="badge-sale">SALE</span>' : ''}</td>
+      <td><span class="badge-genre">${p.genre}</span></td>
+      <td>${fmt(p.price)}</td>
+      <td>${p.sales.toLocaleString()}</td>
+      <td>${p.isSale ? `<span style="color:#d00">${(p.saleRate*100).toFixed(0)}%OFF</span>` : '―'}</td>
+    </tr>
+  `).join('');
+}
+
+// ===== セールページ =====
+function renderSale() {
+  const genre = document.getElementById('sale-genre').value;
+  const sortVal = document.getElementById('sale-sort').value;
+
+  let data = PRODUCTS.filter(p => p.isSale && (!genre || p.genre === genre));
+
+  if (sortVal === 'discount-desc') data.sort((a,b) => b.saleRate - a.saleRate);
+  else if (sortVal === 'price-asc') data.sort((a,b) => a.salePrice - b.salePrice);
+  else if (sortVal === 'sales-desc') data.sort((a,b) => b.sales - a.sales);
+
+  document.getElementById('sale-count').textContent = `${data.length}件のセール商品`;
+  document.getElementById('sale-tbody').innerHTML = data.map(p => `
+    <tr>
+      <td>${p.id}</td>
+      <td>${p.name}</td>
+      <td><span class="badge-genre">${p.genre}</span></td>
+      <td style="text-decoration:line-through;color:#999">${fmt(p.price)}</td>
+      <td style="color:#d00;font-weight:bold">${fmt(p.salePrice)}</td>
+      <td style="color:#d00">${(p.saleRate*100).toFixed(0)}%OFF</td>
+      <td>${p.sales.toLocaleString()}</td>
+    </tr>
+  `).join('');
+}
+
+// ===== ジャンル別ページ =====
+function renderGenre() {
+  const selected = document.getElementById('genre-select').value;
+  const sortVal = document.getElementById('genre-sort').value;
+  const [sKey, sDir] = sortVal.split('-');
+  const keyMap = { id: 'id', price: 'price', sales: 'sales' };
+
+  const genres = selected ? [selected] : GENRES;
+  const container = document.getElementById('genre-sections');
+  container.innerHTML = '';
+
+  genres.forEach(g => {
+    let data = PRODUCTS.filter(p => p.genre === g);
+    data = applySort(data, keyMap[sKey] || 'id', sDir !== 'desc');
+
+    const section = document.createElement('div');
+    section.style.marginBottom = '28px';
+    section.innerHTML = `
+      <h2>${g} <small style="font-size:12px;font-weight:normal;color:#666">（${data.length}件）</small></h2>
+      <table>
+        <thead><tr>
+          <th>商品番号</th><th>商品名</th><th>価格</th><th>売上数</th><th>セール</th>
+        </tr></thead>
+        <tbody>${data.map(p => `
+          <tr>
+            <td>${p.id}</td>
+            <td>${p.name}${p.isSale ? '<span class="badge-sale">SALE</span>' : ''}</td>
+            <td>${fmt(p.price)}</td>
+            <td>${p.sales.toLocaleString()}</td>
+            <td>${p.isSale ? `<span style="color:#d00">${(p.saleRate*100).toFixed(0)}%OFF → ${fmt(p.salePrice)}` : '―'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `;
+    container.appendChild(section);
+  });
+}
+
+// ===== ランキングページ =====
+function renderRanking() {
+  const genre = document.getElementById('rank-genre').value;
+  const limit = parseInt(document.getElementById('rank-limit').value);
+
+  let data = PRODUCTS.filter(p => !genre || p.genre === genre);
+  data.sort((a, b) => b.sales - a.sales);
+  data = data.slice(0, limit);
+
+  document.getElementById('rank-tbody').innerHTML = data.map((p, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
+    return `
+      <tr>
+        <td style="text-align:center;font-weight:bold">${medal}</td>
+        <td>${p.id}</td>
+        <td>${p.name}${p.isSale ? '<span class="badge-sale">SALE</span>' : ''}</td>
+        <td><span class="badge-genre">${p.genre}</span></td>
+        <td>${fmt(p.isSale ? p.salePrice : p.price)}</td>
+        <td>${p.sales.toLocaleString()}</td>
+        <td>${fmt((p.isSale ? p.salePrice : p.price) * p.sales)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderAll() {
+  renderSearch(); renderSale(); renderGenre(); renderRanking();
+}
+renderAll();
+</script>
+</body>
+</html>
