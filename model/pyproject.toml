@@ -1,0 +1,10 @@
+[project]
+name = "Store-Product-Lookup-Model"
+version = "0.0.1"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "sentence-transformers>=5.0.0,<5.4.0",
+    "optimum[onnxruntime]>=2.1.0",
+    "sentencepiece>=0.2.1",
+    "onnxruntime>=1.24.3",
+]

@@ -1,9 +1,27 @@
 <!DOCTYPE html>
-<head></head>
+<head>
+  <meta charset="UTF-8">
+  <title>消費者ページ</title>
+</head>
+
 <body>
     <h1>Customer App</h1>
-    <button onclick="testFetch()">Click Me</button>
+    <h3>Fetch database</h3>
+    <button onclick="testFetch()">フェッチ</button>
+    <h3>Test embedding</h3>
+    <textarea rows="5" cols="40" id="testEmbedInput" placeholder="入力文:"></textarea>
+    <br>
+    <button onclick="testEmbed()">送信</button>
+    <h3>Test cosine similarity</h3>
+    <textarea rows="5" cols="40" id="testSimilarityQueryInput" placeholder="検索クエリ:"></textarea>
+    <br>
+    <textarea rows="5" cols="40" id="testSimilarityDocInput" placeholder="検索文書:"></textarea>
+    <br>
+    <button onclick="testSimilarity()">送信</button>
+    <h3>Result</h3>
+    <div id="result"></div>
 </body>
+
 <script>
     async function testFetch() {
         const res = await fetch('http://localhost:8080/customer/test', {
@@ -14,6 +32,37 @@
         });
         const data = await res.json();
         console.log(data);
+        document.getElementById('result').innerText = JSON.stringify(data);
+    }
+
+    async function testEmbed() {
+        const input = document.getElementById('testEmbedInput').value;
+        const res = await fetch('http://localhost:8080/customer/embed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sentence: input })
+        });
+        const data = await res.json();
+        console.log(data);
+        document.getElementById('result').innerText = JSON.stringify(data);
+    }
+
+    async function testSimilarity() {
+        const query = document.getElementById('testSimilarityQueryInput').value;
+        const doc = document.getElementById('testSimilarityDocInput').value;
+        const res = await fetch('http://localhost:8080/customer/similarity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query, doc })
+        });
+        const data = await res.json();
+        console.log(data);
+        document.getElementById('result').innerText = JSON.stringify(data);
     }
 </script>
+
 </html>
