@@ -3,12 +3,13 @@ DB_USER ?= postgres
 DB_HOST ?= localhost
 DB_PORT ?= 5432
 DB_PASSWORD ?= test
+SERVER_PORT ?= 8080
 MODEL_DIR := model/quantized
 BACKEND_DIR := services
 
-.PHONY: install install-packages install-backend db-start db-drop db-create db-schema db-reset backend-run customer-serve store-serve
+.PHONY: install install-packages install-backend download-model db-set-password start-services db-drop db-create db-schema db-reset serve
 
-install: install-packages install-backend
+install: install-packages install-backend download-model db-set-password db-start db-reset start-services
 
 install-packages:
 	export NVM_DIR="$$HOME/.nvm" && \
@@ -30,11 +31,8 @@ download-model:
 db-set-password:
 	sudo -u $(DB_USER) sh -lc "cd /tmp && psql -c \"ALTER USER $(DB_USER) WITH PASSWORD '$(DB_PASSWORD)';\""
 
-db-start:
+start-services:
 	sudo service postgresql start || sudo systemctl start postgresql
-
-db-stop:
-	sudo service postgresql stop || sudo systemctl stop postgresql
 
 db-drop:
 	sudo -u $(DB_USER) sh -lc 'cd /tmp && dropdb --if-exists $(DB_NAME)'
@@ -48,17 +46,14 @@ db-schema:
 
 db-reset: db-drop db-create db-schema
 
-backend-run:
+serve:
+	@echo "Customer: http://localhost:$(SERVER_PORT)/customer/index.html"
+	@echo "Store:    http://localhost:$(SERVER_PORT)/store/index.html"
 	cd $(BACKEND_DIR) && \
+		PORT=$(SERVER_PORT) \
 		DB_HOST=$(DB_HOST) \
 		DB_PORT=$(DB_PORT) \
 		DB_USER=$(DB_USER) \
 		DB_PASSWORD=$(DB_PASSWORD) \
 		DB_NAME=$(DB_NAME) \
 		npm run dev
-
-customer-serve:
-	cd apps/customer && python3 -m http.server 5500 --bind 0.0.0.0
-
-store-serve:
-	cd apps/store && python3 -m http.server 5501 --bind 0.0.0.0
