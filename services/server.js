@@ -80,6 +80,42 @@ function cosineSimilarity(vecA, vecB) {
   return dotProduct / (normA * normB);
 }
 
+// === Frontend setup ===
+
+const fs = require("fs");
+
+function serveStatic(req, res) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  let filePath;
+
+  if (url.pathname.startsWith("/customer/")) {
+    filePath = path.join(__dirname, "apps/customer", url.pathname.replace("/customer/", ""));
+  } else if (url.pathname.startsWith("/store/")) {
+    filePath = path.join(__dirname, "apps/store", url.pathname.replace("/store/", ""));
+  } else {
+    return false;
+  }
+
+  if (filePath.endsWith("/")) {
+    filePath = path.join(filePath, "index.html");
+  }
+
+  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    return false;
+  }
+
+  const ext = path.extname(filePath);
+  const contentType =
+    ext === ".html" ? "text/html" :
+    ext === ".js" ? "application/javascript" :
+    ext === ".css" ? "text/css" :
+    "application/octet-stream";
+
+  res.writeHead(200, { "Content-Type": contentType });
+  fs.createReadStream(filePath).pipe(res);
+  return true;
+}
+
 // === Server setup ===
 
 const host = "0.0.0.0";
@@ -96,7 +132,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.url === "/customer/test" && req.method === "GET") {
+  if (req.url === "/api/customer/test" && req.method === "GET") {
     try {
       const result = await pool.query("SELECT * FROM products ORDER BY id");
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -109,7 +145,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  if (req.url === "/customer/embed" && req.method === "POST") {
+  if (req.url === "/api/customer/embed" && req.method === "POST") {
     let body = "";
     req.on("data", (chunk) => {
       body += chunk.toString();
@@ -128,7 +164,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.url === "/customer/similarity" && req.method === "POST") {
+  if (req.url === "/api/customer/similarity" && req.method === "POST") {
     let body = "";
     req.on("data", (chunk) => {
       body += chunk.toString();
@@ -146,6 +182,10 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: error.message }));
       }
     });
+    return;
+  }
+
+  if (req.method === "GET" && serveStatic(req, res)) {
     return;
   }
 

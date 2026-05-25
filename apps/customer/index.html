@@ -24,7 +24,7 @@
 
 <script>
     async function testFetch() {
-        const res = await fetch('http://localhost:8080/customer/test', {
+        const res = await fetch('/api/customer/test', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -37,7 +37,7 @@
 
     async function testEmbed() {
         const input = document.getElementById('testEmbedInput').value;
-        const res = await fetch('http://localhost:8080/customer/embed', {
+        const res = await fetch('/api/customer/embed', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -52,7 +52,7 @@
     async function testSimilarity() {
         const query = document.getElementById('testSimilarityQueryInput').value;
         const doc = document.getElementById('testSimilarityDocInput').value;
-        const res = await fetch('http://localhost:8080/customer/similarity', {
+        const res = await fetch('/api/customer/similarity', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
