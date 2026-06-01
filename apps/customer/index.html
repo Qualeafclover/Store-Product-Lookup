@@ -6,62 +6,73 @@
 
 <body>
     <h1>Customer App</h1>
+
+    <!-- データベースから商品一覧を取得するセクション -->
     <h3>Fetch database</h3>
     <button onclick="testFetch()">フェッチ</button>
+
+    <!-- 文章の埋め込みベクトルを取得するセクション -->
     <h3>Test embedding</h3>
     <textarea rows="5" cols="40" id="testEmbedInput" placeholder="入力文:"></textarea>
     <br>
     <button onclick="testEmbed()">送信</button>
+
+    <!-- 2つの文章のコサイン類似度を計算するセクション -->
     <h3>Test cosine similarity</h3>
     <textarea rows="5" cols="40" id="testSimilarityQueryInput" placeholder="検索クエリ:"></textarea>
     <br>
     <textarea rows="5" cols="40" id="testSimilarityDocInput" placeholder="検索文書:"></textarea>
     <br>
     <button onclick="testSimilarity()">送信</button>
+
+    <!-- サーバーからの結果を表示するエリア -->
     <h3>Result</h3>
     <div id="result"></div>
 </body>
 
 <script>
+    // データベースの商品一覧を取得して画面に表示する
     async function testFetch() {
-        const res = await fetch('/api/customer/test', {
+        const res = await fetch('http://localhost:8080/customer/test', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         });
-        const data = await res.json();
+        const data = await res.json(); // レスポンスをJSONとして解析
         console.log(data);
-        document.getElementById('result').innerText = JSON.stringify(data);
+        document.getElementById('result').innerText = JSON.stringify(data); // 結果を画面に表示
     }
 
+    // テキストエリアの文章をサーバーに送り、埋め込みベクトルを取得して表示する
     async function testEmbed() {
-        const input = document.getElementById('testEmbedInput').value;
-        const res = await fetch('/api/customer/embed', {
+        const input = document.getElementById('testEmbedInput').value; // 入力欄の文章を取得
+        const res = await fetch('http://localhost:8080/customer/embed', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ sentence: input })
+            body: JSON.stringify({ sentence: input }) // 文章をJSON形式でサーバーに送信
         });
         const data = await res.json();
         console.log(data);
-        document.getElementById('result').innerText = JSON.stringify(data);
+        document.getElementById('result').innerText = JSON.stringify(data); // 結果を画面に表示
     }
 
+    // クエリと文書の2つの文章をサーバーに送り、コサイン類似度を取得して表示する
     async function testSimilarity() {
-        const query = document.getElementById('testSimilarityQueryInput').value;
-        const doc = document.getElementById('testSimilarityDocInput').value;
-        const res = await fetch('/api/customer/similarity', {
+        const query = document.getElementById('testSimilarityQueryInput').value; // 検索クエリを取得
+        const doc = document.getElementById('testSimilarityDocInput').value;     // 比較対象の文書を取得
+        const res = await fetch('http://localhost:8080/customer/similarity', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ query, doc })
+            body: JSON.stringify({ query, doc }) // 2つの文章をJSON形式でサーバーに送信
         });
         const data = await res.json();
         console.log(data);
-        document.getElementById('result').innerText = JSON.stringify(data);
+        document.getElementById('result').innerText = JSON.stringify(data); // 結果を画面に表示
     }
 </script>
 
