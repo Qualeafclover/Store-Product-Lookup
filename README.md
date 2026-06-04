@@ -1,35 +1,34 @@
+## Docker インストール (Ubuntu / WSL)
+
+https://docs.docker.com/desktop/
+
 ```bash
-# Installs: nodejs, postgresql, backend packages
-make install
-# Starts DB session
-make db-start
-# Sets DB user password (can be changed)
-make db-set-password
-# Resets DB based on the database schema
-make db-reset
+# Add Docker's official GPG key:
+sudo apt update
+sudo apt install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 ```bash
-# Downloads quantized model from google drive
-make download-model
+sudo docker build -t sousei-c ./services
+sudo docker run --rm -p 8080:8080 sousei-c
 ```
 
 ```bash
-# Run the backend server
-make backend-run
-```
-```bash
-# Run the frontend servers
-make customer-serve
-make store-serve
-```
-
-```bash
-# Enter the database manually
-psql -h localhost -p 5432 -U postgres -d postgres
-```
-
-```bash
-# Stop DB server
-make db-stop
+sudo docker ps -a
 ```
