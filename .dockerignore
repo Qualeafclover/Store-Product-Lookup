@@ -1,0 +1,9 @@
+.git
+.codex
+.agents
+docker-compose.yml
+services/node_modules
+model/.venv
+model/.uv-cache
+model/quantized/*.zip
+npm-debug.log
