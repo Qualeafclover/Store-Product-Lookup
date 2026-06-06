@@ -3,9 +3,12 @@ from transformers import AutoTokenizer
 from optimum.onnxruntime.configuration import AutoQuantizationConfig
 from optimum.onnxruntime import ORTQuantizer
 
-model_name = "cl-nagoya/ruri-v3-310m"
-revision = "18b60fb8c2b9df296fb4212bb7d23ef94e579cd3"
-save_dir = "quantized/ruri-v3-310m"
+model_name = "cl-nagoya/ruri-v3-30m"
+save_dir = "quantized/ruri-v3-30m"
+revision = "24899e5de370b56d179604a007c0d727bf144504"
+# model_name = "cl-nagoya/ruri-v3-310m"
+# save_dir = "quantized/ruri-v3-310m"
+# revision = "18b60fb8c2b9df296fb4212bb7d23ef94e579cd3"
 
 model = ORTModelForFeatureExtraction.from_pretrained(model_name, revision=revision, export=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name, revision=revision)

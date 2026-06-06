@@ -22,7 +22,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: test
       DB_NAME: store_product_lookup
-      MODEL_PATH: /app/model/quantized/ruri-v3-310m
+      MODEL_PATH: /app/model/ruri-v3-30m
+      # MODEL_PATH: /app/model/ruri-v3-310m
       FRONT_PATH: /app/front
     ports:
       - "8080:8080"
