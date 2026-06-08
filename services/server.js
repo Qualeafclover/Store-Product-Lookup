@@ -19,7 +19,7 @@ const path = require("path");
 
 async function embed(sentences) {
   // Load tokenizer from the saved directory
-  const tokenizerPath = path.resolve("../model/quantized/ruri-v3-310m");
+  const tokenizerPath = process.env.MODEL_PATH;
   env.localModelPath = "";
   env.allowRemoteModels = false;
   const tokenizer = await AutoTokenizer.from_pretrained(tokenizerPath);
@@ -83,15 +83,16 @@ function cosineSimilarity(vecA, vecB) {
 // === Frontend setup ===
 
 const fs = require("fs");
+const frontendRoot = process.env.FRONT_PATH;
 
 function serveStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   let filePath;
 
   if (url.pathname.startsWith("/customer/")) {
-    filePath = path.join(__dirname, "apps/customer", url.pathname.replace("/customer/", ""));
+    filePath = path.join(frontendRoot, "customer", url.pathname.replace("/customer/", ""));
   } else if (url.pathname.startsWith("/store/")) {
-    filePath = path.join(__dirname, "apps/store", url.pathname.replace("/store/", ""));
+    filePath = path.join(frontendRoot, "store", url.pathname.replace("/store/", ""));
   } else {
     return false;
   }
