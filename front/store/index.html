@@ -6,241 +6,484 @@
 <title>ショップ</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Yu Gothic', 'Hiragino Sans', sans-serif; background: #f5f5f5; color: #111; font-size: 14px; }
 
-/* ===== 戻るボタン ===== */
-.back-btn { display: inline-block; margin-bottom: 16px; padding: 6px 16px; border: 1px solid #999; background: #fff; cursor: pointer; font-size: 13px; }
-.back-btn:hover { background: #eee; }
+body {
+  font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  background: #f7f8fa;
+  color: #1a1a1a;
+  font-size: 14px;
+  min-height: 100vh;
+}
 
-/* ===== ページ ===== */
-.page { display: none; padding: 24px; }
+.page { display: none; }
 .page.active { display: block; }
 
+/* ===== メイン ===== */
+.main { padding: 48px 40px; max-width: 900px; margin: 0 auto; }
+
 /* ===== ホーム ===== */
-.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 600px; }
-.home-box { border: 1px solid #999; padding: 24px 20px; min-height: 120px; font-size: 18px; background: #fff; cursor: pointer; display: flex; align-items: flex-start; }
-.home-box:hover { background: #f0f0f0; }
-h1 { font-size: 22px; font-weight: 700; border: 2px solid #000; padding: 6px 32px; margin-bottom: 28px; display: inline-block; }
-h2 { font-size: 16px; font-weight: 700; margin-bottom: 14px; border-left: 4px solid #111; padding-left: 10px; }
+#page-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+}
+.home-search-wrap {
+  display: flex;
+  align-items: center;
+  width: 560px;
+  height: 48px;
+  border: 1px solid #dfe1e5;
+  border-radius: 28px;
+  padding: 0 18px 0 22px;
+  gap: 10px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(32,33,36,0.12);
+  margin-bottom: 40px;
+  transition: box-shadow 0.2s;
+}
+.home-search-wrap:focus-within {
+  box-shadow: 0 2px 10px rgba(59,130,246,0.18);
+  border-color: #93c5fd;
+}
+.home-search-wrap .g-icon { font-size: 18px; color: #9aa0a6; flex-shrink: 0; }
+.home-search-wrap input[type=text] {
+  border: none; outline: none;
+  font-size: 16px; flex: 1;
+  background: transparent;
+  color: #1a1a1a;
+  font-family: inherit;
+}
+.home-search-wrap input[type=text]::placeholder { color: #aaa; }
+.home-search-wrap .g-mic { font-size: 18px; color: #3b82f6; flex-shrink: 0; }
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 560px;
+}
+.home-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 140px;
+}
+.home-card:hover {
+  box-shadow: 0 4px 16px rgba(59,130,246,0.10);
+  border-color: #bfdbfe;
+  transform: translateY(-2px);
+}
+.home-card-icon {
+  font-size: 26px;
+  width: 44px; height: 44px;
+  background: #eff6ff;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.home-card-title { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+.home-card-desc { font-size: 12px; color: #888; }
+
+/* ===== 戻るボタン ===== */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 16px;
+  border: 1px solid #e0e0e0; border-radius: 6px;
+  background: #fff; cursor: pointer; font-size: 13px; color: #555;
+  transition: background 0.15s;
+}
+.back-btn:hover { background: #f5f5f5; }
+
+/* ===== ページヘッダー ===== */
+.page-header { margin-bottom: 20px; }
+.page-header h1 { font-size: 20px; font-weight: 700; }
+.page-header p { font-size: 13px; color: #888; margin-top: 4px; }
 
 /* ===== ツールバー ===== */
-.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; background: #fff; border: 1px solid #ccc; padding: 10px 14px; }
-.toolbar label { font-size: 13px; color: #555; }
-.toolbar input[type=text] { border: 1px solid #aaa; padding: 5px 8px; font-size: 13px; width: 220px; }
-.toolbar select { border: 1px solid #aaa; padding: 5px 8px; font-size: 13px; background: #fff; }
-.toolbar button { border: 1px solid #aaa; padding: 5px 14px; font-size: 13px; background: #fff; cursor: pointer; }
-.toolbar button:hover { background: #eee; }
-.toolbar .sep { color: #ccc; }
+.toolbar {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  margin-bottom: 16px; background: #fff;
+  border: 1px solid #e8e8e8; border-radius: 10px; padding: 12px 16px;
+}
+.toolbar label { font-size: 12px; color: #888; white-space: nowrap; }
+.toolbar select {
+  border: 1px solid #e0e0e0; border-radius: 6px;
+  padding: 6px 10px; font-size: 13px; background: #fafafa;
+  color: #1a1a1a; outline: none;
+}
+.toolbar select:focus { border-color: #93c5fd; }
+.toolbar button {
+  border: 1px solid #e0e0e0; border-radius: 6px;
+  padding: 6px 14px; font-size: 13px; background: #fafafa;
+  color: #555; cursor: pointer; transition: background 0.15s;
+}
+.toolbar button:hover { background: #f0f0f0; }
+.toolbar .sep { color: #e0e0e0; }
+
+/* ===== Google風検索バー（各ページ内） ===== */
+.google-search-wrap {
+  display: flex; align-items: center; flex: 1; min-width: 240px;
+  height: 40px; border: 1px solid #dfe1e5; border-radius: 24px;
+  padding: 0 14px 0 18px; gap: 8px; background: #fff;
+  box-shadow: 0 1px 4px rgba(32,33,36,0.1); transition: box-shadow 0.2s;
+}
+.google-search-wrap:focus-within {
+  box-shadow: 0 2px 8px rgba(59,130,246,0.15); border-color: #93c5fd;
+}
+.google-search-wrap .g-icon { font-size: 16px; color: #9aa0a6; flex-shrink: 0; }
+.google-search-wrap input[type=text] {
+  border: none; outline: none; font-size: 14px; flex: 1;
+  background: transparent; color: #1a1a1a; font-family: inherit;
+}
+.google-search-wrap input[type=text]::placeholder { color: #aaa; }
+.google-search-wrap .g-mic { font-size: 16px; color: #3b82f6; flex-shrink: 0; }
 
 /* ===== テーブル ===== */
-table { width: 100%; border-collapse: collapse; background: #fff; }
-th { background: #222; color: #fff; padding: 8px 10px; text-align: left; font-weight: 500; font-size: 13px; white-space: nowrap; cursor: pointer; user-select: none; }
-th:hover { background: #444; }
-th .sort-icon { margin-left: 4px; opacity: 0.5; font-size: 11px; }
-th.sorted .sort-icon { opacity: 1; }
-td { padding: 7px 10px; border-bottom: 1px solid #e0e0e0; font-size: 13px; vertical-align: middle; }
-tr:hover td { background: #fafafa; }
-.badge-sale { background: #d00; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 2px; margin-left: 6px; }
-.badge-genre { background: #eee; border: 1px solid #ccc; font-size: 11px; padding: 2px 6px; border-radius: 2px; }
-.count-info { font-size: 13px; color: #555; margin-bottom: 8px; }
+.table-wrap { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  background: #f8f9fa; color: #555; padding: 10px 14px;
+  text-align: left; font-weight: 600; font-size: 12px;
+  white-space: nowrap; cursor: pointer; user-select: none;
+  border-bottom: 1px solid #e8e8e8;
+}
+th:hover { background: #f0f4ff; color: #3b82f6; }
+th .sort-icon { margin-left: 4px; opacity: 0.4; font-size: 10px; }
+th.sorted .sort-icon { opacity: 1; color: #3b82f6; }
+td {
+  padding: 10px 14px; border-bottom: 1px solid #f0f0f0;
+  font-size: 13px; vertical-align: middle; color: #1a1a1a;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafbff; }
+.badge-genre {
+  background: #f3f4f6; color: #555; font-size: 11px;
+  padding: 2px 8px; border-radius: 20px; border: 1px solid #e5e7eb;
+}
+.count-info { font-size: 12px; color: #888; margin-bottom: 10px; }
 
-/* ===== セール ===== */
-.sale-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.live-dot { width: 10px; height: 10px; background: #d00; border-radius: 50%; animation: blink 1s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-.sale-info { font-size: 13px; color: #555; }
+/* ===== 商品追加フォーム ===== */
+.add-form-wrap {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 28px 32px;
+  max-width: 520px;
+}
+.add-form-wrap .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.add-form-wrap .form-row:last-of-type { margin-bottom: 0; }
+.add-form-wrap label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+.add-form-wrap input,
+.add-form-wrap textarea {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1a1a1a;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.add-form-wrap input:focus,
+.add-form-wrap textarea:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+  background: #fff;
+}
+.add-form-wrap textarea { resize: vertical; min-height: 80px; }
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.btn-submit {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-submit:hover { background: #2563eb; }
+.btn-submit:disabled { background: #93c5fd; cursor: not-allowed; }
+.btn-reset-form {
+  background: #fff;
+  color: #555;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-reset-form:hover { background: #f5f5f5; }
+
+/* 送信結果メッセージ */
+#add-result {
+  display: none;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+#add-result.success {
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+#add-result.error {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+}
+
+/* ===== ローディングスピナー ===== */
+#loading {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,0.85);
+  z-index: 999;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== エラーメッセージ ===== */
+#load-error {
+  display: none;
+  background: #fee2e2; border: 1px solid #fca5a5;
+  border-radius: 8px; padding: 12px 16px;
+  margin-bottom: 16px; font-size: 13px; color: #dc2626;
+}
+
+/* ===== スマートフォン対応 ===== */
+@media (max-width: 600px) {
+  #page-home { padding-top: 40px; }
+  .home-search-wrap { width: 100%; }
+  .home-grid { width: 100%; grid-template-columns: 1fr; }
+  #home-results { width: 100%; }
+  .main { padding: 24px 16px; }
+  .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+  .toolbar .sep { display: none; }
+  .google-search-wrap { min-width: unset; width: 100%; }
+  table { font-size: 11px; }
+  td, th { padding: 8px 8px; }
+  .back-btn { font-size: 12px; }
+  .page-header h1 { font-size: 18px; }
+  .add-form-wrap { padding: 20px 16px; }
+}
 </style>
 </head>
 <body>
 
-<!-- ===== ホーム ===== -->
-<div class="page active" id="page-home">
-  <h1>ホーム</h1>
-  <div class="home-grid">
-    <div class="home-box" onclick="showPage('search')">商品名<br>から検索</div>
-    <div class="home-box" onclick="showPage('genre')">ジャンル<br>から検索</div>
-    <div class="home-box" onclick="showPage('ranking')">おすすめ<br><small style="font-size:13px;color:#666">（売上順）</small></div>
-    <div class="home-box" onclick="showPage('sale')">セール中！</div>
-  </div>
+<div id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:#888">商品データを読み込み中…</div>
 </div>
 
-<!-- ===== 商品名から検索 ===== -->
-<div class="page" id="page-search">
-  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
-  <h2>商品名から検索</h2>
-  <div class="toolbar">
-    <label>キーワード：</label>
-    <input type="text" id="search-input" placeholder="商品名を入力" oninput="renderSearch()">
-    <span class="sep">|</span>
-    <label>ジャンル：</label>
-    <select id="search-genre" onchange="renderSearch()">
-      <option value="">すべて</option>
-    </select>
-    <span class="sep">|</span>
-    <label>並び替え：</label>
-    <select id="search-sort" onchange="renderSearch()">
-      <option value="id-asc">商品番号 ↑</option>
-      <option value="name-asc">商品名 A→Z</option>
-      <option value="price-asc">価格 安い順</option>
-      <option value="price-desc">価格 高い順</option>
-      <option value="sales-desc">売上 多い順</option>
-    </select>
-    <button onclick="resetSearch()">リセット</button>
-  </div>
-  <div class="count-info" id="search-count"></div>
-  <table id="search-table">
-    <thead>
-      <tr>
-        <th onclick="sortTable('search','id')">商品番号<span class="sort-icon">↕</span></th>
-        <th onclick="sortTable('search','name')">商品名<span class="sort-icon">↕</span></th>
-        <th onclick="sortTable('search','genre')">ジャンル<span class="sort-icon">↕</span></th>
-        <th onclick="sortTable('search','price')">価格<span class="sort-icon">↕</span></th>
-        <th onclick="sortTable('search','sales')">売上数<span class="sort-icon">↕</span></th>
-        <th>セール</th>
-      </tr>
-    </thead>
-    <tbody id="search-tbody"></tbody>
-  </table>
-</div>
+<div class="main">
 
-<!-- ===== セール中 ===== -->
-<div class="page" id="page-sale">
-  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
-  <div class="sale-header">
-    <div class="live-dot"></div>
-    <h2 style="margin:0;border:none;padding:0">セール中の商品</h2>
-    <span class="sale-info" id="sale-updated"></span>
-  </div>
-  <div class="toolbar">
-    <label>ジャンル：</label>
-    <select id="sale-genre" onchange="renderSale()">
-      <option value="">すべて</option>
-    </select>
-    <span class="sep">|</span>
-    <label>並び替え：</label>
-    <select id="sale-sort" onchange="renderSale()">
-      <option value="discount-desc">割引率 高い順</option>
-      <option value="price-asc">価格 安い順</option>
-      <option value="sales-desc">売上 多い順</option>
-    </select>
-  </div>
-  <div class="count-info" id="sale-count"></div>
-  <table>
-    <thead>
-      <tr>
-        <th>商品番号</th>
-        <th>商品名</th>
-        <th>ジャンル</th>
-        <th>通常価格</th>
-        <th>セール価格</th>
-        <th>割引率</th>
-        <th>売上数</th>
-      </tr>
-    </thead>
-    <tbody id="sale-tbody"></tbody>
-  </table>
-</div>
+  <div id="load-error">⚠️ 商品データの取得に失敗しました。サーバーの接続を確認してください。</div>
 
-<!-- ===== ジャンル別 ===== -->
-<div class="page" id="page-genre">
-  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
-  <h2>ジャンル別</h2>
-  <div class="toolbar">
-    <label>ジャンルを選択：</label>
-    <select id="genre-select" onchange="renderGenre()">
-      <option value="">すべて表示</option>
-    </select>
-    <span class="sep">|</span>
-    <label>並び替え：</label>
-    <select id="genre-sort" onchange="renderGenre()">
-      <option value="id-asc">商品番号 ↑</option>
-      <option value="price-asc">価格 安い順</option>
-      <option value="price-desc">価格 高い順</option>
-      <option value="sales-desc">売上 多い順</option>
-    </select>
-  </div>
-  <div id="genre-sections"></div>
-</div>
+  <!-- ホーム -->
+  <div class="page active" id="page-home">
+    <div class="home-search-wrap">
+      <span class="g-icon">🔍</span>
+      <input type="text" id="home-search-input" placeholder="商品名を入力して検索…" onkeydown="homeSearch(event)">
+      <span class="g-mic" onclick="homeSearch(null)" style="cursor:pointer">🔍</span>
+    </div>
 
-<!-- ===== 売上ランキング ===== -->
-<div class="page" id="page-ranking">
-  <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
-  <h2>売上ランキング</h2>
-  <div class="toolbar">
-    <label>ジャンル：</label>
-    <select id="rank-genre" onchange="renderRanking()">
-      <option value="">すべて</option>
-    </select>
-    <span class="sep">|</span>
-    <label>表示件数：</label>
-    <select id="rank-limit" onchange="renderRanking()">
-      <option value="10">10件</option>
-      <option value="20">20件</option>
-      <option value="50">50件</option>
-      <option value="999">全件</option>
-    </select>
+    <div class="home-grid" id="home-grid">
+      <div class="home-card" onclick="showPage('search')">
+        <div class="home-card-icon">🔍</div>
+        <div class="home-card-title">商品名から検索</div>
+        <div class="home-card-desc">キーワードで商品を探す</div>
+      </div>
+      <div class="home-card" onclick="showPage('genre')">
+        <div class="home-card-icon">📂</div>
+        <div class="home-card-title">場所から検索</div>
+        <div class="home-card-desc">場所で絞り込む</div>
+      </div>
+      <div class="home-card" onclick="showPage('add')">
+        <div class="home-card-icon">➕</div>
+        <div class="home-card-title">商品を追加</div>
+        <div class="home-card-desc">新しい商品を登録する</div>
+      </div>
+    </div>
+
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>順位</th>
-        <th>商品番号</th>
-        <th>商品名</th>
-        <th>ジャンル</th>
-        <th>価格</th>
-        <th>売上数</th>
-        <th>売上金額</th>
-      </tr>
-    </thead>
-    <tbody id="rank-tbody"></tbody>
-  </table>
-</div>
+
+  <!-- 商品名から検索 -->
+  <div class="page" id="page-search">
+    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <div class="page-header"><h1>商品名から検索</h1></div>
+    <div class="toolbar">
+      <div class="google-search-wrap">
+        <span class="g-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="商品名を入力" oninput="renderSearch()">
+        <span class="g-mic">🎤</span>
+      </div>
+      <span class="sep">|</span>
+      <label>場所</label>
+      <select id="search-genre" onchange="renderSearch()"><option value="">すべて</option></select>
+      <span class="sep">|</span>
+      <label>並び替え</label>
+      <select id="search-sort" onchange="renderSearch()">
+        <option value="name-asc">商品名 A→Z</option>
+        <option value="price-asc">価格 安い順</option>
+        <option value="price-desc">価格 高い順</option>
+      </select>
+      <button onclick="resetSearch()">リセット</button>
+    </div>
+    <div class="count-info" id="search-count"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortTable('search','name')">商品名<span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('search','genre')">場所<span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('search','price')">価格<span class="sort-icon">↕</span></th>
+          <th>詳細</th>
+        </tr></thead>
+        <tbody id="search-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 場所から検索 -->
+  <div class="page" id="page-genre">
+    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <div class="page-header"><h1>場所から検索</h1></div>
+    <div class="toolbar">
+      <label>場所を選択</label>
+      <select id="genre-select" onchange="renderGenre()"><option value="">すべて表示</option></select>
+      <span class="sep">|</span>
+      <label>並び替え</label>
+      <select id="genre-sort" onchange="renderGenre()">
+        <option value="name-asc">商品名 A→Z</option>
+        <option value="price-asc">価格 安い順</option>
+        <option value="price-desc">価格 高い順</option>
+      </select>
+    </div>
+    <div id="genre-sections"></div>
+  </div>
+
+  <!-- 商品追加 -->
+  <div class="page" id="page-add">
+    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <div class="page-header">
+      <h1>商品を追加</h1>
+      <p>新しい商品の情報を入力して登録します</p>
+    </div>
+    <div class="add-form-wrap">
+      <div class="form-row">
+        <label for="add-name">商品名 <span style="color:#ef4444">*</span></label>
+        <input type="text" id="add-name" placeholder="" maxlength="100">
+      </div>
+      <div class="form-row">
+        <label for="add-detail">商品詳細</label>
+        <textarea id="add-detail" placeholder=""></textarea>
+      </div>
+      <div class="form-row">
+        <label for="add-location">場所 <span style="color:#ef4444">*</span></label>
+        <input type="text" id="add-location" placeholder="" maxlength="100">
+      </div>
+      <div class="form-row">
+        <label for="add-price">価格（円） <span style="color:#ef4444">*</span></label>
+        <input type="number" id="add-price" placeholder="" min="0" step="1">
+      </div>
+      <div class="form-actions">
+        <button class="btn-submit" id="add-submit-btn" onclick="submitAddProduct()">追加する</button>
+        <button class="btn-reset-form" onclick="resetAddForm()">クリア</button>
+      </div>
+      <div id="add-result"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
 
 <script>
-// ===== ダミーデータ生成 =====
-const GENRES = ['家電','ファッション','食品','書籍','スポーツ','インテリア','コスメ','おもちゃ'];
-const SALE_RATES = [0, 0, 0, 0.1, 0.15, 0.2, 0.25, 0.3, 0.5]; // 0=セールなし
+let PRODUCTS = [];
+let GENRES = [];
 
-function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-const PRODUCTS = Array.from({length: 80}, (_, i) => {
-  const genre = GENRES[i % GENRES.length];
-  const basePrice = rand(500, 50000);
-  const saleRate = SALE_RATES[rand(0, SALE_RATES.length - 1)];
-  const salePrice = saleRate > 0 ? Math.floor(basePrice * (1 - saleRate)) : null;
+function normalizeProduct(item, index) {
   return {
-    id: `P${String(i + 1).padStart(4, '0')}`,
-    name: `${genre}商品 ${String(i + 1).padStart(3, '0')}`,
-    genre,
-    price: basePrice,
-    salePrice,
-    saleRate,
-    sales: rand(0, 3000),
-    isSale: saleRate > 0,
+    id:      item.id ?? index,
+    name:    item.product_name    ?? '不明',
+    genre:   item.location        ?? item.genre ?? '未分類',
+    detail:  item.product_details ?? '',
+    price:   Number(item.price)   || 0,
   };
-});
-
-// セール更新時刻（リアルタイム風）
-function updateSaleTime() {
-  const now = new Date();
-  const fmt = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')} 更新`;
-  const el = document.getElementById('sale-updated');
-  if (el) el.textContent = fmt;
 }
-setInterval(updateSaleTime, 1000);
-updateSaleTime();
+//バックエンドの仕様によって変更
 
-// ===== ナビ =====
+async function loadProducts() {
+  document.getElementById('loading').style.display = 'flex';
+  try {
+    const res = await fetch('/api/customer/products', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    PRODUCTS = (Array.isArray(data) ? data : data.products ?? [])
+      .map((item, i) => normalizeProduct(item, i));
+    GENRES = [...new Set(PRODUCTS.map(p => p.genre))];
+  } catch (e) {
+    console.error('商品データの取得に失敗しました:', e);
+    document.getElementById('load-error').style.display = 'block';
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+    initSelects();
+    renderAll();
+  }
+}
+
+// ===== ページ切り替え =====
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  renderAll();
+  if (id === 'home') document.getElementById('home-search-input').value = '';
+  if (id !== 'add') renderAll();
+}
+
+// ===== ホーム検索 =====
+function homeSearch(e) {
+  if (e && e.key !== 'Enter') return;
+  const kw = document.getElementById('home-search-input').value.trim();
+  if (!kw) return;
+  document.getElementById('search-input').value = kw;
+  showPage('search');
 }
 
 // ===== セレクト初期化 =====
 function initSelects() {
-  const selects = ['search-genre','sale-genre','genre-select','rank-genre'];
-  selects.forEach(id => {
+  ['search-genre','genre-select'].forEach(id => {
     const sel = document.getElementById(id);
     const first = sel.options[0];
     sel.innerHTML = '';
@@ -252,18 +495,13 @@ function initSelects() {
     });
   });
 }
-initSelects();
 
-// ===== ソート状態 =====
-const sortState = { search: { key: 'id', asc: true } };
+// ===== ソート =====
+const sortState = { search: { key: 'name', asc: true } };
 
 function sortTable(table, key) {
-  if (sortState[table].key === key) {
-    sortState[table].asc = !sortState[table].asc;
-  } else {
-    sortState[table].key = key;
-    sortState[table].asc = true;
-  }
+  if (sortState[table].key === key) sortState[table].asc = !sortState[table].asc;
+  else { sortState[table].key = key; sortState[table].asc = true; }
   if (table === 'search') renderSearch();
 }
 
@@ -275,13 +513,13 @@ function applySort(arr, key, asc) {
   });
 }
 
-function fmt(n) { return n.toLocaleString('ja-JP') + '円'; }
+function fmt(n) { return Number(n).toLocaleString('ja-JP') + '円'; }
 
-// ===== 商品名検索ページ =====
+// ===== 商品名検索 =====
 function resetSearch() {
   document.getElementById('search-input').value = '';
   document.getElementById('search-genre').value = '';
-  document.getElementById('search-sort').value = 'id-asc';
+  document.getElementById('search-sort').value = 'name-asc';
   renderSearch();
 }
 
@@ -290,121 +528,133 @@ function renderSearch() {
   const genre = document.getElementById('search-genre').value;
   const sortVal = document.getElementById('search-sort').value;
   const [sKey, sDir] = sortVal.split('-');
-
   let data = PRODUCTS.filter(p =>
     (!kw || p.name.toLowerCase().includes(kw)) &&
     (!genre || p.genre === genre)
   );
-
-  const keyMap = { id: 'id', name: 'name', price: 'price', sales: 'sales', genre: 'genre' };
-  data = applySort(data, keyMap[sKey] || 'id', sDir !== 'desc');
-
+  const keyMap = { name: 'name', price: 'price', genre: 'genre' };
+  data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
   document.getElementById('search-count').textContent = `${data.length}件`;
-  const tbody = document.getElementById('search-tbody');
-  tbody.innerHTML = data.map(p => `
+  document.getElementById('search-tbody').innerHTML = data.map(p => `
     <tr>
-      <td>${p.id}</td>
-      <td>${p.name}${p.isSale ? '<span class="badge-sale">SALE</span>' : ''}</td>
-      <td><span class="badge-genre">${p.genre}</span></td>
-      <td>${fmt(p.price)}</td>
-      <td>${p.sales.toLocaleString()}</td>
-      <td>${p.isSale ? `<span style="color:#d00">${(p.saleRate*100).toFixed(0)}%OFF</span>` : '―'}</td>
-    </tr>
-  `).join('');
-}
-
-// ===== セールページ =====
-function renderSale() {
-  const genre = document.getElementById('sale-genre').value;
-  const sortVal = document.getElementById('sale-sort').value;
-
-  let data = PRODUCTS.filter(p => p.isSale && (!genre || p.genre === genre));
-
-  if (sortVal === 'discount-desc') data.sort((a,b) => b.saleRate - a.saleRate);
-  else if (sortVal === 'price-asc') data.sort((a,b) => a.salePrice - b.salePrice);
-  else if (sortVal === 'sales-desc') data.sort((a,b) => b.sales - a.sales);
-
-  document.getElementById('sale-count').textContent = `${data.length}件のセール商品`;
-  document.getElementById('sale-tbody').innerHTML = data.map(p => `
-    <tr>
-      <td>${p.id}</td>
       <td>${p.name}</td>
       <td><span class="badge-genre">${p.genre}</span></td>
-      <td style="text-decoration:line-through;color:#999">${fmt(p.price)}</td>
-      <td style="color:#d00;font-weight:bold">${fmt(p.salePrice)}</td>
-      <td style="color:#d00">${(p.saleRate*100).toFixed(0)}%OFF</td>
-      <td>${p.sales.toLocaleString()}</td>
+      <td>${fmt(p.price)}</td>
+      <td style="color:#888;font-size:12px">${p.detail}</td>
     </tr>
   `).join('');
 }
 
-// ===== ジャンル別ページ =====
+// ===== 場所別 =====
 function renderGenre() {
   const selected = document.getElementById('genre-select').value;
   const sortVal = document.getElementById('genre-sort').value;
   const [sKey, sDir] = sortVal.split('-');
-  const keyMap = { id: 'id', price: 'price', sales: 'sales' };
-
+  const keyMap = { name: 'name', price: 'price' };
   const genres = selected ? [selected] : GENRES;
   const container = document.getElementById('genre-sections');
   container.innerHTML = '';
-
   genres.forEach(g => {
     let data = PRODUCTS.filter(p => p.genre === g);
-    data = applySort(data, keyMap[sKey] || 'id', sDir !== 'desc');
-
+    data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
     const section = document.createElement('div');
     section.style.marginBottom = '28px';
     section.innerHTML = `
-      <h2>${g} <small style="font-size:12px;font-weight:normal;color:#666">（${data.length}件）</small></h2>
-      <table>
-        <thead><tr>
-          <th>商品番号</th><th>商品名</th><th>価格</th><th>売上数</th><th>セール</th>
-        </tr></thead>
-        <tbody>${data.map(p => `
-          <tr>
-            <td>${p.id}</td>
-            <td>${p.name}${p.isSale ? '<span class="badge-sale">SALE</span>' : ''}</td>
-            <td>${fmt(p.price)}</td>
-            <td>${p.sales.toLocaleString()}</td>
-            <td>${p.isSale ? `<span style="color:#d00">${(p.saleRate*100).toFixed(0)}%OFF → ${fmt(p.salePrice)}` : '―'}</td>
-          </tr>
-        `).join('')}</tbody>
-      </table>
+      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:10px">
+        ${g} <span style="font-size:12px;font-weight:400;color:#888">（${data.length}件）</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>商品名</th><th>価格</th><th>詳細</th></tr></thead>
+          <tbody>${data.map(p => `
+            <tr>
+              <td>${p.name}</td>
+              <td>${fmt(p.price)}</td>
+              <td style="color:#888;font-size:12px">${p.detail}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
     `;
     container.appendChild(section);
   });
 }
 
-// ===== ランキングページ =====
-function renderRanking() {
-  const genre = document.getElementById('rank-genre').value;
-  const limit = parseInt(document.getElementById('rank-limit').value);
+// ===== 商品追加 =====
+async function submitAddProduct() {
+  const name     = document.getElementById('add-name').value.trim();
+  const detail   = document.getElementById('add-detail').value.trim();
+  const location = document.getElementById('add-location').value.trim();
+  const price    = document.getElementById('add-price').value;
 
-  let data = PRODUCTS.filter(p => !genre || p.genre === genre);
-  data.sort((a, b) => b.sales - a.sales);
-  data = data.slice(0, limit);
+　//ここから追加
+  // バリデーション
+  if (!name || !location || price === '') {
+    showAddResult('error', '⚠️ 商品名・場所・価格は必須です。');
+    return;
+  }
+  if (Number(price) < 0) {
+    showAddResult('error', '⚠️ 価格は0以上で入力してください。');
+    return;
+  }//サーバーに送る前に入力ミスがないか確認する
 
-  document.getElementById('rank-tbody').innerHTML = data.map((p, i) => {
-    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
-    return `
-      <tr>
-        <td style="text-align:center;font-weight:bold">${medal}</td>
-        <td>${p.id}</td>
-        <td>${p.name}${p.isSale ? '<span class="badge-sale">SALE</span>' : ''}</td>
-        <td><span class="badge-genre">${p.genre}</span></td>
-        <td>${fmt(p.isSale ? p.salePrice : p.price)}</td>
-        <td>${p.sales.toLocaleString()}</td>
-        <td>${fmt((p.isSale ? p.salePrice : p.price) * p.sales)}</td>
-      </tr>
-    `;
-  }).join('');
+  const payload = {
+    product_name:    name,
+    product_details: detail,
+    location:        location,
+    price:           Number(price),
+  };
+
+  const btn = document.getElementById('add-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+　//1回目の送信中はdisabledで以降の入力を受け付けない
+
+  try {
+    const res = await fetch('/api/store/add_product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      showAddResult('success', `✅ 「${name}」を追加しました。`);
+      resetAddForm();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showAddResult('error', `⚠️ 追加に失敗しました（${res.status}）${err.message ? '：' + err.message : ''}`);
+    }
+  } catch (e) {
+    console.error(e);
+    showAddResult('error', '⚠️ サーバーに接続できませんでした。');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '追加する';
+  }
+}//fanallyは必ず実行され、追加するを押さなければ動かない
+
+function showAddResult(type, msg) {
+  const el = document.getElementById('add-result');
+  el.className = type;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
+function resetAddForm() {
+  ['add-name','add-detail','add-location','add-price'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('add-result').style.display = 'none';
+}
+
+// ===== renderAll =====
 function renderAll() {
-  renderSearch(); renderSale(); renderGenre(); renderRanking();
+  renderSearch();
+  renderGenre();
 }
-renderAll();
+
+loadProducts();
 </script>
 </body>
 </html>
