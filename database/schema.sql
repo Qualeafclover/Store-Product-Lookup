@@ -10,28 +10,29 @@ CREATE TABLE aisles (
 
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    category TEXT NOT NULL,
-    price NUMERIC(10, 2) NOT NULL,
-    stock_count INTEGER DEFAULT 0,
-    aisle_id INTEGER REFERENCES aisles(id),
-    description_summary TEXT,
-    encoded_vector TEXT,
-    is_recommended BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
+    name TEXT NOT NULL,                 
+    description TEXT,                    
+    price NUMERIC(10, 2) NOT NULL,       
+    aisle_id INTEGER REFERENCES aisles(id) 
+)
 WITH inserted_aisles AS (
-    INSERT INTO aisles (aisle_label, floor_level) VALUES 
-    ('A-1', 1), 
-    ('B-5', 1), 
-    ('家電エリア', 2)
+    INSERT INTO aisles (aisle_label) VALUES 
+    ('A-1'), 
+    ('B-5'), 
+    ('家電エリア')
     RETURNING id, aisle_label
 )
-INSERT INTO products (name, category, price, stock_count, aisle_id, description_summary, encoded_vector, is_recommended)
-SELECT 'ノートパソコン', '電化製品', 85000, 5, id, '高性能で軽量なビジネス向けPC', '[0.12, 0.88, 0.45]', TRUE FROM inserted_aisles WHERE aisle_label = '家電エリア'
+INSERT INTO products (name, description, price, aisle_id)
+SELECT 'ノートパソコン', '高性能で軽量なビジネス向けPC', 85000, id FROM inserted_aisles WHERE aisle_label = '家電エリア'
 UNION ALL
-SELECT 'ミネラルウォーター', '飲料', 100, 50, id, '富士山の天然水 500ml', '[0.01, 0.05, 0.99]', FALSE FROM inserted_aisles WHERE aisle_label = 'A-1'
+SELECT 'ミネラルウォーター', '富士山の天然水 500ml', 100, id FROM inserted_aisles WHERE aisle_label = 'A-1'
 UNION ALL
-SELECT 'ぬいぐるみ', '玩具', 1500, 12, id, '肌触りの良いクマのぬいぐるみ', '[0.75, 0.22, 0.10]', TRUE FROM inserted_aisles WHERE aisle_label = 'B-5';
+SELECT 'ぬいぐるみ', '肌触りの良いクマのぬいぐるみ', 1500, id FROM inserted_aisles WHERE aisle_label = 'B-5';
 
+SELECT 
+    p.name AS 商品名, 
+    p.description AS 詳細情報,
+    p.price AS 価格,
+    a.aisle_label AS 場所
+FROM products p
+JOIN aisles a ON p.aisle_id = a.id;
