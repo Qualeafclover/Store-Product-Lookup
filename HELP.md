@@ -134,7 +134,7 @@ test
 
 画像メモ:
 
-- ここに「Publish Branch」の画像を追加
+![](images/upload.png)
 
 ## 8. GitHubのブラウザ画面を開く
 
@@ -152,9 +152,10 @@ test
 
 画像メモ:
 
-- ここに「Compare & pull request」の画像を追加
-- ここに「Pull requestsタブ」の画像を追加
-- ここに「baseとcompareの選択画面」の画像を追加
+![](images/ez-pr.png)
+![](images/new-pr.png)
+![](images/compare.png)
+![](images/hard-pr.png)
 
 ## 9. Pull Requestを作成する
 
@@ -192,8 +193,7 @@ PRタイトルには、何を変更したかを書いてください。
 
 画像メモ:
 
-- ここに「PRタイトルと説明欄」の画像を追加
-- ここに「Create pull requestボタン」の画像を追加
+![](images/desc.png)
 
 ## 10. PRを出した後にすること
 
