@@ -186,6 +186,30 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.url === "/api/store/add_product" && req.method === "POST") {
+  let body = "";
+  req.on("data", (chunk) => {
+    body += chunk.toString();
+  });
+  req.on("end", async () => {
+    try {
+      const { product_name, product_details, location, price } = JSON.parse(body); 
+
+      console.log("商品を受け取りました:");
+      console.log(`  商品名: ${product_name}`);
+      console.log(`  詳細: ${product_details}`);
+      console.log(`  場所: ${location}`);
+      console.log(`  価格: ${price}`);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "dekitayo?" }));
+    } catch (error) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+  });
+  return;
+}
   if (req.method === "GET" && serveStatic(req, res)) {
     return;
   }
