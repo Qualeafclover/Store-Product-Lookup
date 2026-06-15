@@ -587,7 +587,7 @@ async function submitAddProduct() {
   const location = document.getElementById('add-location').value.trim();
   const price    = document.getElementById('add-price').value;
 
-　//ここから追加
+  //ここから追加
   // バリデーション
   if (!name || !location || price === '') {
     showAddResult('error', '⚠️ 商品名・場所・価格は必須です。');
@@ -596,7 +596,7 @@ async function submitAddProduct() {
   if (Number(price) < 0) {
     showAddResult('error', '⚠️ 価格は0以上で入力してください。');
     return;
-  }//サーバーに送る前に入力ミスがないか確認する
+  }  //サーバーに送る前に入力ミスがないか確認する
 
   const payload = {
     product_name:    name,
@@ -608,7 +608,7 @@ async function submitAddProduct() {
   const btn = document.getElementById('add-submit-btn');
   btn.disabled = true;
   btn.textContent = '送信中…';
-　//1回目の送信中はdisabledで以降の入力を受け付けない
+  //1回目の送信中はdisabledで以降の入力を受け付けない
 
   try {
     const res = await fetch('/api/store/add_product', {
@@ -631,7 +631,7 @@ async function submitAddProduct() {
     btn.disabled = false;
     btn.textContent = '追加する';
   }
-}//fanallyは必ず実行され、追加するを押さなければ動かない
+}  //finallyは必ず実行され、追加するを押さなければ動かない
 
 function showAddResult(type, msg) {
   const el = document.getElementById('add-result');
