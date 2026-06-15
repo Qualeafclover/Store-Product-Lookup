@@ -152,6 +152,34 @@ docker compose up --build
 
 `down -v` は PostgreSQL の保存データを削除します。データベースを作り直したい時だけ使ってください。
 
+### データベース関連
+
+データベースにアクセス: \
+なお、パスワードは `docker-compose.yml` に記述されています
+
+```bash
+psql -h localhost -p 5432 -U postgres -d postgres
+```
+
+`store_product_lookup` データベースにアクセス:
+
+```sql
+\c store_product_lookup
+```
+
+`products` テーブルのスキーマ表示:
+
+```sql
+\d products
+```
+
+コサイン近似度検索: \
+なお、`<=>` がコサイン近似度の意味を持つ
+
+```sql
+SELECT * FROM products ORDER BY encoded_vector <=> '[0.3, 0.2, -0.1]'::VECTOR LIMIT 3;
+```
+
 ## 補足
 
 `docker-compose.yml` は 2 つのサービスを起動します。
