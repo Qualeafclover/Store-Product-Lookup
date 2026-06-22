@@ -200,6 +200,12 @@ const server = http.createServer(async (req, res) => {
         console.log(`  詳細: ${product_details}`);
         console.log(`  場所: ${location}`);
         console.log(`  価格: ${price}`);
+        
+        const result = await pool.query(
+          `INSERT INTO products (product_name, product_details, location, price, embedding) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+          [product_name, product_details, location, price, '[0.0, 0.0, 0.0]']
+        );
+    
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "dekitayo?" }));
