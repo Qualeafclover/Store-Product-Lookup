@@ -446,7 +446,7 @@ function normalizeProduct(item, index) {
 async function loadProducts() {
   document.getElementById('loading').style.display = 'flex';
   try {
-    const res = await fetch('/api/customer/products', {
+    const res = await fetch('/api/store/products', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });
