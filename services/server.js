@@ -204,8 +204,32 @@ const server = http.createServer(async (req, res) => {
         const documentText = `検索文書: ${product_name}（${product_details}）`;
         console.log(`ベクトル化する文章: ${documentText}`);
         const embedding = await embed([documentText]);
-        console.log("ベクトル化した数列:");
-        console.log(embedding[0]);
+        // console.log("ベクトル化した数列:");
+        // console.log(embedding[0]);
+
+        let aisleCheck = await pool.query(
+            "SELECT id FROM aisles WHERE aisle_name = $1", 
+            [location]
+        );
+
+        let aisleId;
+
+        if (aisleCheck.rows.length === 0) {
+            const newAisle = await pool.query(
+                "INSERT INTO aisles (aisle_name) VALUES ($1) RETURNING id", 
+                [location]
+            );
+            aisleId = newAisle.rows[0].id;
+        } else {
+            aisleId = aisleCheck.rows[0].id;
+        }
+
+        const result = await pool.query(
+            `INSERT INTO products (name, description, price, aisle_id, encoded_vector) 
+              VALUES ($1, $2, $3, $4, $5) 
+              RETURNING *`,
+            [product_name, product_details, price, aisleId, JSON.stringify(embedding[0])]
+        );
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "dekitayo?" }));
