@@ -218,23 +218,15 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.url === "/api/store/products" && req.method === "GET") {
-    let body = "";
-    req.on("data", (chunk) => {
-      body += chunk.toString();
-    });
-    req.on("end", async () => {
-      try {
-        const data = JSON.parse(body);
+    try {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "products received" }));
       } catch (error) {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: error.message }));
       }
-    });
     return;
   }
-
   if (req.url === "/api/customer/search" && req.method === "POST") {
     let body = "";
     req.on("data", (chunk) => {
