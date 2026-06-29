@@ -200,12 +200,30 @@ const server = http.createServer(async (req, res) => {
         console.log(`  詳細: ${product_details}`);
         console.log(`  場所: ${location}`);
         console.log(`  価格: ${price}`);
-        
-        const result = await pool.query(
-          `INSERT INTO products (product_name, product_details, location, price, embedding) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-          [product_name, product_details, location, price, '[0.0, 0.0, 0.0]']
+
+        let aisleCheck = await pool.query(
+            "SELECT id FROM aisles WHERE aisle_name = $1", 
+            [location]
         );
-    
+
+        let aisleId;
+
+        if (aisleCheck.rows.length === 0) {
+            const newAisle = await pool.query(
+                "INSERT INTO aisles (aisle_name) VALUES ($1) RETURNING id", 
+                [location]
+            );
+            aisleId = newAisle.rows[0].id;
+        } else {
+            aisleId = aisleCheck.rows[0].id;
+        }
+
+        const result = await pool.query(
+            `INSERT INTO products (name, description, price, aisle_id, encoded_vector) 
+              VALUES ($1, $2, $3, $4, $5) 
+              RETURNING *`,
+            [product_name, product_details, price, aisleId, '[0.0, 0.0, 0.0]']
+        );
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "dekitayo?" }));
