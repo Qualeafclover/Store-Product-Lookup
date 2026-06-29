@@ -310,13 +310,14 @@ tr:hover td { background: #fafbff; }
 <div class="main">
 
   <div id="load-error">⚠️ 商品データの取得に失敗しました。サーバーの接続を確認してください。</div>
+  <div id="not-found-error">⚠️ 商品データが見つかりませんでした(404)。</div>
+
 
   <!-- ホーム -->
   <div class="page active" id="page-home">
     <div class="home-search-wrap">
       <span class="g-icon">🔍</span>
       <input type="text" id="home-search-input" placeholder="商品名を入力して検索…" onkeydown="homeSearch(event)">
-      <span class="g-mic" onclick="homeSearch(null)" style="cursor:pointer">🔍</span>
     </div>
 
     <div class="home-grid" id="home-grid">
@@ -341,7 +342,7 @@ tr:hover td { background: #fafbff; }
 
   <!-- 商品名から検索 -->
   <div class="page" id="page-search">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header"><h1>商品名から検索</h1></div>
     <div class="toolbar">
       <div class="google-search-wrap">
@@ -377,7 +378,7 @@ tr:hover td { background: #fafbff; }
 
   <!-- 場所から検索 -->
   <div class="page" id="page-genre">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header"><h1>場所から検索</h1></div>
     <div class="toolbar">
       <label>場所を選択</label>
