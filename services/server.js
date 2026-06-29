@@ -261,7 +261,7 @@ const server = http.createServer(async (req, res) => {
         console.log("-----------------------------------------");
 
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "products received" }));
+        res.end(JSON.stringify(result.rows));
       } catch (error) {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: error.message }));
