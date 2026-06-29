@@ -225,9 +225,6 @@ const server = http.createServer(async (req, res) => {
     req.on("end", async () => {
       try {
         const data = JSON.parse(body);
-        console.log("/api/store/products が呼ばれました:");
-        console.log(data);
-
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "products received" }));
       } catch (error) {
