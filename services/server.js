@@ -219,6 +219,7 @@ const server = http.createServer(async (req, res) => {
 
   if (req.url === "/api/store/products" && req.method === "GET") {
     try {
+        console.log("/api/store/products が呼ばれました:");
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "products received" }));
       } catch (error) {
