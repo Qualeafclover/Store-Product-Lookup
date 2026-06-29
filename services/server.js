@@ -244,6 +244,22 @@ const server = http.createServer(async (req, res) => {
   if (req.url === "/api/store/products" && req.method === "GET") {
     try {
         console.log("/api/store/products が呼ばれました:");
+        const result = await pool.query(`
+            SELECT 
+                p.id, 
+                p.name, 
+                p.description, 
+                p.price, 
+                a.aisle_name
+            FROM products p
+            LEFT JOIN aisles a ON p.aisle_id = a.id
+            ORDER BY p.id DESC
+        `);
+        console.log(`データ取得成功！ 現在の商品数は ${result.rows.length} 件です。`);
+        console.log(" 取得したデータの中身は以下の通りです：");
+        console.table(result.rows);
+        console.log("-----------------------------------------");
+
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "products received" }));
       } catch (error) {
