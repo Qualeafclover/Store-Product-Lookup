@@ -446,15 +446,23 @@ function normalizeProduct(item, index) {
 async function loadProducts() {
   document.getElementById('loading').style.display = 'flex';
   try {
-    const res = await fetch('/api/customer/products', {
+    const res = await fetch('/api/store/products', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });
+    if (!res.ok) {
+    throw new Error(res.status);
+    }
     const data = await res.json();
     PRODUCTS = (Array.isArray(data) ? data : data.products ?? [])
       .map((item, i) => normalizeProduct(item, i));
     GENRES = [...new Set(PRODUCTS.map(p => p.genre))];
   } catch (e) {
+    if (e.message === '404') {
+     document.getElementById('not-found-error').style.display = 'block'; // 404用
+    } else {
+     document.getElementById('load-error').style.display = 'block'; // その他のエラー用
+    }
     console.error('商品データの取得に失敗しました:', e);
     document.getElementById('load-error').style.display = 'block';
   } finally {

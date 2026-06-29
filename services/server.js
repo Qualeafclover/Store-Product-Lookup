@@ -201,6 +201,12 @@ const server = http.createServer(async (req, res) => {
         console.log(`  場所: ${location}`);
         console.log(`  価格: ${price}`);
 
+        const documentText = `検索文書: ${product_name}（${product_details}）`;
+        console.log(`ベクトル化する文章: ${documentText}`);
+        const embedding = await embed([documentText]);
+        // console.log("ベクトル化した数列:");
+        // console.log(embedding[0]);
+
         let aisleCheck = await pool.query(
             "SELECT id FROM aisles WHERE aisle_name = $1", 
             [location]
@@ -222,11 +228,43 @@ const server = http.createServer(async (req, res) => {
             `INSERT INTO products (name, description, price, aisle_id, encoded_vector) 
               VALUES ($1, $2, $3, $4, $5) 
               RETURNING *`,
-            [product_name, product_details, price, aisleId, '[0.0, 0.0, 0.0]']
+            [product_name, product_details, price, aisleId, JSON.stringify(embedding[0])]
         );
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "dekitayo?" }));
+      } catch (error) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: error.message }));
+      }
+    });
+    return;
+  }
+
+  if (req.url === "/api/store/products" && req.method === "GET") {
+    try {
+        console.log("/api/store/products が呼ばれました:");
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "products received" }));
+      } catch (error) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: error.message }));
+      }
+    return;
+  }
+  if (req.url === "/api/customer/search" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
+    req.on("end", async () => {
+      try {
+        const data = JSON.parse(body);
+        console.log("/api/customer/search が呼ばれました:");
+        console.log(data);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "search received" }));
       } catch (error) {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: error.message }));
