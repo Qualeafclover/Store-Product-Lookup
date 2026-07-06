@@ -268,6 +268,7 @@ const server = http.createServer(async (req, res) => {
       }
     return;
   }
+
   if (req.url === "/api/customer/search" && req.method === "POST") {
     let body = "";
     req.on("data", (chunk) => {
@@ -288,6 +289,41 @@ const server = http.createServer(async (req, res) => {
     });
     return;
   }
+
+  if (req.url === "/api/customer/search" && req.method === "POST") {
+    let body = "";
+    
+    req.on("data", (chunk) => {
+        body += chunk.toString();
+    });
+
+    req.on("end", async () => {
+      try {
+        const { sentence } = JSON.parse(body);
+        const embeddings = await embed([sentence]);
+
+        const result = await pool.query(`
+            SELECT * FROM products 
+            ORDER BY encoded_vector <=> '${embeddings[0].join(", ")}'::VECTOR 
+            LIMIT 10
+        `);
+
+        console.log("-----------------------------------------");
+        console.log("/api/customer/search（商品検索）が呼び出されました！");
+        console.table(result.rows);
+        console.log("-----------------------------------------");
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(result.rows));
+
+      } catch (error) {
+        console.error("検索中にエラーが発生しました:", error.message);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: error.message }));
+      }
+    });
+    return;
+  }
   
   if (req.method === "GET" && serveStatic(req, res)) {
     return;
@@ -301,36 +337,3 @@ const server = http.createServer(async (req, res) => {
 server.listen(port, host, () => {
   console.log(`Backend listening on http://${host}:${port}`);
 });
-if (req.url === "/api/customer/search" && req.method === "POST") {
-    let body = "";
-    
-    req.on("data", (chunk) => {
-        body += chunk.toString();
-    });
-
-    req.on("end", async () => {
-        try {
-            const data = JSON.parse(body);
-
-            const result = await pool.query(`
-                SELECT * FROM products 
-                ORDER BY encoded_vector <=> '[0.3, 0.2, -0.1]'::VECTOR 
-                LIMIT 10
-            `);
-
-            console.log("-----------------------------------------");
-            console.log("/api/customer/search（商品検索）が呼び出されました！");
-            console.table(result.rows);
-            console.log("-----------------------------------------");
-
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(result.rows));
-
-        } catch (error) {
-            console.error("検索中にエラーが発生しました:", error.message);
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: error.message }));
-        }
-    });
-    return;
-}
