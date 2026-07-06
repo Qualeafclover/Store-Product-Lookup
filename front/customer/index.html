@@ -150,12 +150,9 @@ table { width: 100%; border-collapse: collapse; }
 th {
   background: #f8f9fa; color: #555; padding: 10px 14px;
   text-align: left; font-weight: 600; font-size: 12px;
-  white-space: nowrap; cursor: pointer; user-select: none;
+  white-space: nowrap;
   border-bottom: 1px solid #e8e8e8;
 }
-th:hover { background: #f0f4ff; color: #3b82f6; }
-th .sort-icon { margin-left: 4px; opacity: 0.4; font-size: 10px; }
-th.sorted .sort-icon { opacity: 1; color: #3b82f6; }
 td {
   padding: 10px 14px; border-bottom: 1px solid #f0f0f0;
   font-size: 13px; vertical-align: middle; color: #1a1a1a;
@@ -233,7 +230,7 @@ tr:hover td { background: #fafbff; }
       <input type="text" id="home-search-input" placeholder="商品名を入力して検索…" onkeydown="homeSearch(event)">
     </div>
 
-    <div class="home-grid" id="home-grid">
+    <!-- <div class="home-grid" id="home-grid">
       <div class="home-card" onclick="showPage('search')">
         <div class="home-card-icon">🔍</div>
         <div class="home-card-title">商品名から検索</div>
@@ -245,7 +242,7 @@ tr:hover td { background: #fafbff; }
         <div class="home-card-desc">場所で絞り込む</div>
       </div>
 
-    </div>
+    </div> -->
 
   </div>
 
@@ -253,31 +250,24 @@ tr:hover td { background: #fafbff; }
   <div class="page" id="page-search">
     <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header"><h1>商品名から検索</h1></div>
-    <div class="toolbar">
+    <div class="toolbar" style="display:none">
       <div class="google-search-wrap">
         <span class="g-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="商品名を入力" oninput="debouncedRenderSearch()">
+        <input type="text" id="search-input" placeholder="商品名を入力" oninput="fetchSearchResults()">
         <span class="g-mic">🎤</span>
       </div>
       <span class="sep">|</span>
       <label>場所</label>
       <select id="search-genre" onchange="renderSearch()"><option value="">すべて</option></select>
-      <span class="sep">|</span>
-      <label>並び替え</label>
-      <select id="search-sort" onchange="renderSearch()">
-        <option value="name-asc">商品名 あ→ん</option>
-        <option value="price-asc">価格 安い順</option>
-        <option value="price-desc">価格 高い順</option>
-      </select>
       <button onclick="resetSearch()">リセット</button>
     </div>
     <div class="count-info" id="search-count"></div>
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th onclick="sortTable('search','name')">商品名<span class="sort-icon">↕</span></th>
-          <th onclick="sortTable('search','genre')">場所<span class="sort-icon">↕</span></th>
-          <th onclick="sortTable('search','price')">価格<span class="sort-icon">↕</span></th>
+          <th>商品名</th>
+          <th>場所</th>
+          <th>価格</th>
           <th>詳細</th>
         </tr></thead>
         <tbody id="search-tbody"></tbody>
@@ -292,13 +282,6 @@ tr:hover td { background: #fafbff; }
     <div class="toolbar">
       <label>場所を選択</label>
       <select id="genre-select" onchange="renderGenre()"><option value="">すべて表示</option></select>
-      <span class="sep">|</span>
-      <label>並び替え</label>
-      <select id="genre-sort" onchange="renderGenre()">
-        <option value="name-asc">商品名 あ→ん</option>
-        <option value="price-asc">価格 安い順</option>
-        <option value="price-desc">価格 高い順</option>
-      </select>
     </div>
     <div id="genre-sections"></div>
   </div>
@@ -400,30 +383,12 @@ function initSelects() {
   });
 }
 
-// ===== ソート =====
-const sortState = { search: { key: 'name', asc: true } };
-
-function sortTable(table, key) {
-  if (sortState[table].key === key) sortState[table].asc = !sortState[table].asc;
-  else { sortState[table].key = key; sortState[table].asc = true; }
-  if (table === 'search') renderSearch();
-}
-
-function applySort(arr, key, asc) {
-  return [...arr].sort((a, b) => {
-    let va = a[key], vb = b[key];
-    if (typeof va === 'string') return asc ? va.localeCompare(vb) : vb.localeCompare(va);
-    return asc ? va - vb : vb - va;
-  });
-}
-
 function fmt(n) { return Number(n).toLocaleString('ja-JP') + '円'; }
 
 // ===== 商品名検索 =====
 function resetSearch() {
   document.getElementById('search-input').value = '';
   document.getElementById('search-genre').value = '';
-  document.getElementById('search-sort').value = 'name-asc';
   renderSearch();
 }
 
@@ -432,9 +397,6 @@ function resetSearch() {
 async function renderSearch() {
   const kw = document.getElementById('search-input').value.trim();
   const genre = document.getElementById('search-genre').value;
-  const sortVal = document.getElementById('search-sort').value;
-  const [sKey, sDir] = sortVal.split('-');
-  const keyMap = { name: 'name', price: 'price', genre: 'aisle_name' };
 
   document.getElementById('loading').style.display = 'flex'; // 追加: 検索中はローディング表示
   try {
@@ -444,7 +406,6 @@ async function renderSearch() {
     // 場所での絞り込みは受け取った検索結果に対してクライアント側で行う
     if (genre) data = data.filter(p => p.aisle_name === genre);
 
-    data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
     document.getElementById('search-count').textContent = `${data.length}件`;
     document.getElementById('search-tbody').innerHTML = data.map(p => `
       <tr>
@@ -469,9 +430,6 @@ async function renderSearch() {
 // 場所(location)をサーバーに送ってDBが絞り込んだ結果だけを受け取る方式に変更
 async function renderGenre() {
   const selected = document.getElementById('genre-select').value;
-  const sortVal = document.getElementById('genre-sort').value;
-  const [sKey, sDir] = sortVal.split('-');
-  const keyMap = { name: 'name', price: 'price' };
   const genres = selected ? [selected] : GENRES;
   const container = document.getElementById('genre-sections');
 
@@ -484,7 +442,7 @@ async function renderGenre() {
 
     container.innerHTML = '';
     genres.forEach((g, i) => {
-      let data = applySort(results[i], keyMap[sKey] || 'name', sDir !== 'desc');
+      const data = results[i];
       const section = document.createElement('div');
       section.style.marginBottom = '28px';
       section.innerHTML = `
