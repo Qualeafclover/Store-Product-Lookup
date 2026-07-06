@@ -400,24 +400,6 @@ function initSelects() {
   });
 }
 
-// ===== ソート =====
-const sortState = { search: { key: 'name', asc: true } };
-
-function sortTable(table, key) {
-  if (sortState[table].key === key) sortState[table].asc = !sortState[table].asc;
-  else { sortState[table].key = key; sortState[table].asc = true; }
-  if (table === 'search') renderSearch();
-}
-
-function applySort(arr, key, asc) {
-  return [...arr].sort((a, b) => {
-    let va = a[key], vb = b[key];
-    if (typeof va === 'string') return asc ? va.localeCompare(vb) : vb.localeCompare(va);
-    return asc ? va - vb : vb - va;
-  });
-}
-
-function fmt(n) { return Number(n).toLocaleString('ja-JP') + '円'; }
 
 // ===== 商品名検索 =====
 function resetSearch() {
