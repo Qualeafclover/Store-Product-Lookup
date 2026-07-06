@@ -271,27 +271,6 @@ const server = http.createServer(async (req, res) => {
 
   if (req.url === "/api/customer/search" && req.method === "POST") {
     let body = "";
-    req.on("data", (chunk) => {
-      body += chunk.toString();
-    });
-    req.on("end", async () => {
-      try {
-        const data = JSON.parse(body);
-        console.log("/api/customer/search が呼ばれました:");
-        console.log(data);
-
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "search received" }));
-      } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: error.message }));
-      }
-    });
-    return;
-  }
-
-  if (req.url === "/api/customer/search" && req.method === "POST") {
-    let body = "";
     
     req.on("data", (chunk) => {
         body += chunk.toString();
