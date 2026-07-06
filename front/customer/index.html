@@ -256,7 +256,7 @@ tr:hover td { background: #fafbff; }
     <div class="toolbar">
       <div class="google-search-wrap">
         <span class="g-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="商品名を入力" oninput="renderSearch()">
+        <input type="text" id="search-input" placeholder="商品名を入力" oninput="debouncedRenderSearch()">
         <span class="g-mic">🎤</span>
       </div>
       <span class="sep">|</span>
@@ -344,6 +344,28 @@ async function loadProducts() {
   }
 }
 
+// 追加: 全商品を読み込む代わりに、入力されたキーワードのみをサーバーに送り、
+// データベース側で絞り込んだ結果だけを受け取るための関数
+// 変更: 場所(location)も指定できるように拡張(場所から検索ページで使用)
+async function fetchSearchResults(keyword, location) {
+  const params = new URLSearchParams();
+  if (keyword)  params.set('keyword', keyword);   // 入力されたキーワードのみを送信
+  if (location) params.set('location', location); // 選択された場所のみを送信
+
+  // ※ /api/customer/search は検索専用のエンドポイントを想定しています。
+  //   実際のバックエンドのパス・パラメータ名に合わせて変更してください。
+  const res = await fetch(`/api/customer/puroducts?${params.toString()}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) throw new Error(res.status);
+
+  const data = await res.json();
+  return (Array.isArray(data) ? data : data.products ?? [])
+    .map((item, i) => normalizeProduct(item, i));
+}
+// 追加ここまで
+
 // ===== ページ切り替え =====
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -403,61 +425,92 @@ function resetSearch() {
   renderSearch();
 }
 
-function renderSearch() {
-  const kw = document.getElementById('search-input').value.toLowerCase();
+// 変更: PRODUCTS配列を絞り込む方式から、キーワードのみをサーバーへ送って
+// データベース側の検索結果だけを受け取る方式に変更(場所の絞り込みはクライアント側のまま)
+async function renderSearch() {
+  const kw = document.getElementById('search-input').value.trim();
   const genre = document.getElementById('search-genre').value;
   const sortVal = document.getElementById('search-sort').value;
   const [sKey, sDir] = sortVal.split('-');
-  let data = PRODUCTS.filter(p =>
-    (!kw || p.name.toLowerCase().includes(kw)) &&
-    (!genre || p.aisle_name === genre)
-  );
   const keyMap = { name: 'name', price: 'price', genre: 'aisle_name' };
-  data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
-  document.getElementById('search-count').textContent = `${data.length}件`;
-  document.getElementById('search-tbody').innerHTML = data.map(p => `
-    <tr>
-      <td>${p.name}</td>
-      <td><span class="badge-genre">${p.aisle_name}</span></td>
-      <td>${fmt(p.price)}</td>
-      <td style="color:#888;font-size:12px">${p.description}</td>
-    </tr>
-  `).join('');
+
+  document.getElementById('loading').style.display = 'flex'; // 追加: 検索中はローディング表示
+  try {
+    // 変更: キーワードのみをDBに送信し、検索結果だけを取得
+    let data = await fetchSearchResults(kw);
+
+    // 場所での絞り込みは受け取った検索結果に対してクライアント側で行う
+    if (genre) data = data.filter(p => p.aisle_name === genre);
+
+    data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
+    document.getElementById('search-count').textContent = `${data.length}件`;
+    document.getElementById('search-tbody').innerHTML = data.map(p => `
+      <tr>
+        <td>${p.name}</td>
+        <td><span class="badge-genre">${p.aisle_name}</span></td>
+        <td>${fmt(p.price)}</td>
+        <td style="color:#888;font-size:12px">${p.description}</td>
+      </tr>
+    `).join('');
+  } catch (e) { // 追加: 検索リクエスト失敗時のエラー処理
+    console.error('検索結果の取得に失敗しました:', e);
+    document.getElementById('load-error').style.display = 'block';
+    document.getElementById('search-count').textContent = '';
+    document.getElementById('search-tbody').innerHTML = '';
+  } finally {
+    document.getElementById('loading').style.display = 'none'; // 追加
+  }
 }
 
 // ===== 場所別 =====
-function renderGenre() {
+// 変更: PRODUCTS配列をクライアント側で絞り込む方式から、
+// 場所(location)をサーバーに送ってDBが絞り込んだ結果だけを受け取る方式に変更
+async function renderGenre() {
   const selected = document.getElementById('genre-select').value;
   const sortVal = document.getElementById('genre-sort').value;
   const [sKey, sDir] = sortVal.split('-');
   const keyMap = { name: 'name', price: 'price' };
   const genres = selected ? [selected] : GENRES;
   const container = document.getElementById('genre-sections');
-  container.innerHTML = '';
-  genres.forEach(g => {
-    let data = PRODUCTS.filter(p => p.aisle_name === g);
-    data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
-    const section = document.createElement('div');
-    section.style.marginBottom = '28px';
-    section.innerHTML = `
-      <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:10px">
-        ${g} <span style="font-size:12px;font-weight:400;color:#888">（${data.length}件）</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>商品名</th><th>価格</th><th>詳細</th></tr></thead>
-          <tbody>${data.map(p => `
-            <tr>
-              <td>${p.name}</td>
-              <td>${fmt(p.price)}</td>
-              <td style="color:#888;font-size:12px">${p.description}</td>
-            </tr>
-          `).join('')}</tbody>
-        </table>
-      </div>
-    `;
-    container.appendChild(section);
-  });
+
+  document.getElementById('loading').style.display = 'flex'; // 追加: 取得中はローディング表示
+  try {
+    // 変更: 場所ごとにDBへ問い合わせて、その場所の商品だけを取得する
+    const results = await Promise.all(
+      genres.map(g => fetchSearchResults('', g))
+    );
+
+    container.innerHTML = '';
+    genres.forEach((g, i) => {
+      let data = applySort(results[i], keyMap[sKey] || 'name', sDir !== 'desc');
+      const section = document.createElement('div');
+      section.style.marginBottom = '28px';
+      section.innerHTML = `
+        <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:10px">
+          ${g} <span style="font-size:12px;font-weight:400;color:#888">（${data.length}件）</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>商品名</th><th>価格</th><th>詳細</th></tr></thead>
+            <tbody>${data.map(p => `
+              <tr>
+                <td>${p.name}</td>
+                <td>${fmt(p.price)}</td>
+                <td style="color:#888;font-size:12px">${p.description}</td>
+              </tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      `;
+      container.appendChild(section);
+    });
+  } catch (e) { // 追加: 取得失敗時のエラー処理
+    console.error('場所別の商品取得に失敗しました:', e);
+    document.getElementById('load-error').style.display = 'block';
+    container.innerHTML = '';
+  } finally {
+    document.getElementById('loading').style.display = 'none'; // 追加
+  }
 }
 
 
