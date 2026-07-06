@@ -305,6 +305,7 @@ tr:hover td { background: #fafbff; }
 <div id="loading">
   <div class="spinner"></div>
   <div style="font-size:13px;color:#888">商品データを読み込み中…</div>
+    <div id="not-found-error">⚠️ 商品データが見つかりませんでした (404)。</div>
 </div>
 
 <div class="main">
@@ -316,7 +317,6 @@ tr:hover td { background: #fafbff; }
     <div class="home-search-wrap">
       <span class="g-icon">🔍</span>
       <input type="text" id="home-search-input" placeholder="商品名を入力して検索…" onkeydown="homeSearch(event)">
-      <span class="g-mic" onclick="homeSearch(null)" style="cursor:pointer">🔍</span>
     </div>
 
     <div class="home-grid" id="home-grid">
@@ -335,13 +335,19 @@ tr:hover td { background: #fafbff; }
         <div class="home-card-title">商品を追加</div>
         <div class="home-card-desc">新しい商品を登録する</div>
       </div>
+      <!-- 追加: データベースの商品を常に一覧表示するページへのリンク -->
+      <div class="home-card" onclick="showPage('list')">
+        <div class="home-card-icon">📋</div>
+        <div class="home-card-title">商品一覧を表示</div>
+      </div>
+      <!-- 追加ここまで -->
     </div>
 
   </div>
 
   <!-- 商品名から検索 -->
   <div class="page" id="page-search">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header"><h1>商品名から検索</h1></div>
     <div class="toolbar">
       <div class="google-search-wrap">
@@ -355,7 +361,7 @@ tr:hover td { background: #fafbff; }
       <span class="sep">|</span>
       <label>並び替え</label>
       <select id="search-sort" onchange="renderSearch()">
-        <option value="name-asc">商品名 A→Z</option>
+        <option value="name-asc">商品名 あ→ん</option>
         <option value="price-asc">価格 安い順</option>
         <option value="price-desc">価格 高い順</option>
       </select>
@@ -377,7 +383,7 @@ tr:hover td { background: #fafbff; }
 
   <!-- 場所から検索 -->
   <div class="page" id="page-genre">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header"><h1>場所から検索</h1></div>
     <div class="toolbar">
       <label>場所を選択</label>
@@ -385,7 +391,7 @@ tr:hover td { background: #fafbff; }
       <span class="sep">|</span>
       <label>並び替え</label>
       <select id="genre-sort" onchange="renderGenre()">
-        <option value="name-asc">商品名 A→Z</option>
+        <option value="name-asc">商品名 あ→ん</option>
         <option value="price-asc">価格 安い順</option>
         <option value="price-desc">価格 高い順</option>
       </select>
@@ -393,9 +399,40 @@ tr:hover td { background: #fafbff; }
     <div id="genre-sections"></div>
   </div>
 
+  <!-- 追加: データベースから受け取った商品を常に一覧表示するページ -->
+  <div class="page" id="page-list">
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
+    <div class="page-header">
+      <h1>商品一覧</h1>
+    </div>
+    <div class="toolbar">
+      <label>並び替え</label>
+      <select id="list-sort" onchange="renderList()">
+        <option value="name-asc">商品名 あ→ん</option>
+        <option value="price-asc">価格 安い順</option>
+        <option value="price-desc">価格 高い順</option>
+      </select>
+      <span class="sep">|</span>
+      <button onclick="loadProducts()">再読み込み</button>
+    </div>
+    <div class="count-info" id="list-count"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>商品名</th>
+          <th>場所</th>
+          <th>価格</th>
+          <th>詳細</th>
+        </tr></thead>
+        <tbody id="list-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- 追加ここまで -->
+
   <!-- 商品追加 -->
   <div class="page" id="page-add">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header">
       <h1>商品を追加</h1>
       <p>新しい商品の情報を入力して登録します</p>
@@ -435,9 +472,10 @@ let GENRES = [];
 function normalizeProduct(item, index) {
   return {
     id:      item.id ?? index,
-    name:    item.product_name    ?? '不明',
-    genre:   item.location        ?? item.genre ?? '未分類',
-    detail:  item.product_details ?? '',
+    name:    item.name    ?? '不明',
+    description:   item.description        ?? item.genre ?? '未分類',
+    aisle_id:  item.id_aisle      ?? 0,
+    aisle_name:   item.aisle_name  ?? '不明',
     price:   Number(item.price)   || 0,
   };
 }
@@ -456,7 +494,7 @@ async function loadProducts() {
     const data = await res.json();
     PRODUCTS = (Array.isArray(data) ? data : data.products ?? [])
       .map((item, i) => normalizeProduct(item, i));
-    GENRES = [...new Set(PRODUCTS.map(p => p.genre))];
+    GENRES = [...new Set(PRODUCTS.map(p => p.aisle_name))];
   } catch (e) {
     if (e.message === '404') {
      document.getElementById('not-found-error').style.display = 'block'; // 404用
@@ -538,20 +576,43 @@ function renderSearch() {
   const [sKey, sDir] = sortVal.split('-');
   let data = PRODUCTS.filter(p =>
     (!kw || p.name.toLowerCase().includes(kw)) &&
-    (!genre || p.genre === genre)
+    (!genre || p.aisle_name === genre)
   );
-  const keyMap = { name: 'name', price: 'price', genre: 'genre' };
+  const keyMap = { name: 'name', price: 'price', genre: 'aisle_name' };
   data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
   document.getElementById('search-count').textContent = `${data.length}件`;
   document.getElementById('search-tbody').innerHTML = data.map(p => `
     <tr>
       <td>${p.name}</td>
-      <td><span class="badge-genre">${p.genre}</span></td>
+      <td><span class="badge-genre">${p.aisle_name}</span></td>
       <td>${fmt(p.price)}</td>
-      <td style="color:#888;font-size:12px">${p.detail}</td>
+      <td style="color:#888;font-size:12px">${p.description}</td>
     </tr>
   `).join('');
 }
+
+// 追加: データベースから受け取った全商品を常に一覧表示する関数
+function renderList() {
+  const sortVal = document.getElementById('list-sort').value;
+  const [sKey, sDir] = sortVal.split('-');
+  const keyMap = { name: 'name', price: 'price', genre: 'aisle_name' };
+  const data = applySort(PRODUCTS, keyMap[sKey] || 'name', sDir !== 'desc');
+
+  const countEl = document.getElementById('list-count');
+  if (countEl) countEl.textContent = `全${data.length}件`;
+
+  const tbody = document.getElementById('list-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td><span class="badge-genre">${p.aisle_name}</span></td>
+      <td>${fmt(p.price)}</td>
+      <td style="color:#888;font-size:12px">${p.description}</td>
+    </tr>
+  `).join('');
+}
+// 追加ここまで
 
 // ===== 場所別 =====
 function renderGenre() {
@@ -563,7 +624,7 @@ function renderGenre() {
   const container = document.getElementById('genre-sections');
   container.innerHTML = '';
   genres.forEach(g => {
-    let data = PRODUCTS.filter(p => p.genre === g);
+    let data = PRODUCTS.filter(p => p.aisle_name === g);
     data = applySort(data, keyMap[sKey] || 'name', sDir !== 'desc');
     const section = document.createElement('div');
     section.style.marginBottom = '28px';
@@ -578,7 +639,7 @@ function renderGenre() {
             <tr>
               <td>${p.name}</td>
               <td>${fmt(p.price)}</td>
-              <td style="color:#888;font-size:12px">${p.detail}</td>
+              <td style="color:#888;font-size:12px">${p.description}</td>
             </tr>
           `).join('')}</tbody>
         </table>
@@ -660,6 +721,7 @@ function resetAddForm() {
 function renderAll() {
   renderSearch();
   renderGenre();
+  renderList(); // 追加: データ取得・更新時に一覧ページも常に最新の内容へ更新する
 }
 
 loadProducts();

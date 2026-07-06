@@ -268,20 +268,46 @@ const server = http.createServer(async (req, res) => {
       }
     return;
   }
+
   if (req.url === "/api/customer/search" && req.method === "POST") {
     let body = "";
+    
     req.on("data", (chunk) => {
-      body += chunk.toString();
+        body += chunk.toString();
     });
+
     req.on("end", async () => {
       try {
-        const data = JSON.parse(body);
-        console.log("/api/customer/search が呼ばれました:");
-        console.log(data);
+        const { sentence } = JSON.parse(body);
+        const queryText = `検索クエリ: ${sentence}`;
+        // console.log(`検索クエリを受け取りました: ${queryText}`);
+        const embeddings = await embed([queryText]);
+        // console.log("ベクトル化した数列:");
+        // console.log(embeddings[0]);
+
+        const result = await pool.query(`
+          SELECT 
+            p.id, 
+            p.name, 
+            p.description, 
+            p.price, 
+            a.aisle_name
+          FROM products p
+          LEFT JOIN aisles a ON p.aisle_id = a.id
+          ORDER BY p.encoded_vector <=> '[${embeddings[0].join(", ")}]'::VECTOR 
+          LIMIT 10
+        `);
+
+        console.log("-----------------------------------------");
+        console.log("/api/customer/search（商品検索）が呼び出されました！");
+        console.table(result.rows);
+        console.log("-----------------------------------------");
 
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "search received" }));
+        res.end(JSON.stringify(result.rows));
+
       } catch (error) {
+        console.error("検索中にエラーが発生しました:", error.message);
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: error.message }));
       }

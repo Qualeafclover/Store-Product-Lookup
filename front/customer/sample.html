@@ -18,11 +18,30 @@
     <textarea rows="5" cols="40" id="testSimilarityDocInput" placeholder="検索文書:"></textarea>
     <br>
     <button onclick="testSimilarity()">送信</button>
+    <h3>Test customer search</h3>
+    <textarea rows="5" cols="40" id="customerSearch"></textarea>
+    <br>
+    <button onclick="testCustomerSearch()">検索</button>
+    <br>
     <h3>Result</h3>
     <div id="result"></div>
 </body>
 
 <script>
+    async function testCustomerSearch() {
+        const query = document.getElementById('customerSearch').value;
+        const res = await fetch('/api/customer/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sentence: query })
+        });
+        const data = await res.json();
+        console.log(data);
+        document.getElementById('result').innerText = JSON.stringify(data);
+    }
+
     async function testFetch() {
         const res = await fetch('/api/customer/test', {
             method: 'GET',
