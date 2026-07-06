@@ -354,13 +354,13 @@ async function fetchSearchResults(keyword, location) {
 
   // ※ /api/customer/search は検索専用のエンドポイントを想定しています。
   //   実際のバックエンドのパス・パラメータ名に合わせて変更してください。
-  const res = await fetch(`/api/customer/search?${params.toString()}`, {
-    method: 'GET',
+  const res = await fetch(`/api/customer/search`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' }
   });
+  const data = await res.json();
   if (!res.ok) throw new Error(res.status);
 
-  const data = await res.json();
   return (Array.isArray(data) ? data : data.products ?? [])
     .map((item, i) => normalizeProduct(item, i));
 }
