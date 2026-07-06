@@ -305,6 +305,7 @@ tr:hover td { background: #fafbff; }
 <div id="loading">
   <div class="spinner"></div>
   <div style="font-size:13px;color:#888">商品データを読み込み中…</div>
+    <div id="not-found-error">⚠️ 商品データが見つかりませんでした (404)。</div>
 </div>
 
 <div class="main">
@@ -316,7 +317,6 @@ tr:hover td { background: #fafbff; }
     <div class="home-search-wrap">
       <span class="g-icon">🔍</span>
       <input type="text" id="home-search-input" placeholder="商品名を入力して検索…" onkeydown="homeSearch(event)">
-      <span class="g-mic" onclick="homeSearch(null)" style="cursor:pointer">🔍</span>
     </div>
 
     <div class="home-grid" id="home-grid">
@@ -341,7 +341,7 @@ tr:hover td { background: #fafbff; }
 
   <!-- 商品名から検索 -->
   <div class="page" id="page-search">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header"><h1>商品名から検索</h1></div>
     <div class="toolbar">
       <div class="google-search-wrap">
@@ -355,7 +355,7 @@ tr:hover td { background: #fafbff; }
       <span class="sep">|</span>
       <label>並び替え</label>
       <select id="search-sort" onchange="renderSearch()">
-        <option value="name-asc">商品名 A→Z</option>
+        <option value="name-asc">商品名 あ→ん</option>
         <option value="price-asc">価格 安い順</option>
         <option value="price-desc">価格 高い順</option>
       </select>
@@ -377,7 +377,7 @@ tr:hover td { background: #fafbff; }
 
   <!-- 場所から検索 -->
   <div class="page" id="page-genre">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')">← ホーム</button>
     <div class="page-header"><h1>場所から検索</h1></div>
     <div class="toolbar">
       <label>場所を選択</label>
@@ -385,7 +385,7 @@ tr:hover td { background: #fafbff; }
       <span class="sep">|</span>
       <label>並び替え</label>
       <select id="genre-sort" onchange="renderGenre()">
-        <option value="name-asc">商品名 A→Z</option>
+        <option value="name-asc">商品名 あ→ん</option>
         <option value="price-asc">価格 安い順</option>
         <option value="price-desc">価格 高い順</option>
       </select>
@@ -395,7 +395,7 @@ tr:hover td { background: #fafbff; }
 
   <!-- 商品追加 -->
   <div class="page" id="page-add">
-    <button class="back-btn" onclick="showPage('home')">← ホームへ戻る</button>
+    <button class="back-btn" onclick="showPage('home')"> 一覧を消す</button>
     <div class="page-header">
       <h1>商品を追加</h1>
       <p>新しい商品の情報を入力して登録します</p>
@@ -436,8 +436,9 @@ function normalizeProduct(item, index) {
   return {
     id:      item.id ?? index,
     name:    item.product_name    ?? '不明',
-    genre:   item.location        ?? item.genre ?? '未分類',
-    detail:  item.product_details ?? '',
+    description:   item.location        ?? item.genre ?? '未分類',
+    aisle_id:  item.id_aisle      ?? 0,
+    aisle_name:   item.aisle_name  ?? '不明',
     price:   Number(item.price)   || 0,
   };
 }
