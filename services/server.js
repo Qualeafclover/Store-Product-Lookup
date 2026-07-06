@@ -303,9 +303,9 @@ const server = http.createServer(async (req, res) => {
         const embeddings = await embed([sentence]);
 
         const result = await pool.query(`
-            SELECT * FROM products 
-            ORDER BY encoded_vector <=> '${embeddings[0].join(", ")}'::VECTOR 
-            LIMIT 10
+          SELECT * FROM products 
+          ORDER BY encoded_vector <=> '${embeddings[0].join(", ")}'::VECTOR 
+          LIMIT 10
         `);
 
         console.log("-----------------------------------------");
