@@ -224,13 +224,13 @@ tr:hover td { background: #fafbff; }
 <div class="main">
 
   <div id="load-error">⚠️ 商品データの取得に失敗しました。サーバーの接続を確認してください。</div>
+  <div id="not-found-error">⚠️ 商品データが見つかりませんでした (404)。</div>
 
   <!-- ホーム -->
   <div class="page active" id="page-home">
     <div class="home-search-wrap">
       <span class="g-icon">🔍</span>
       <input type="text" id="home-search-input" placeholder="商品名を入力して検索…" onkeydown="homeSearch(event)">
-      <span class="g-mic" onclick="homeSearch(null)" style="cursor:pointer">🔍</span>
     </div>
 
     <div class="home-grid" id="home-grid">
@@ -265,7 +265,7 @@ tr:hover td { background: #fafbff; }
       <span class="sep">|</span>
       <label>並び替え</label>
       <select id="search-sort" onchange="renderSearch()">
-        <option value="name-asc">商品名 A→Z</option>
+        <option value="name-asc">商品名 あ→ん</option>
         <option value="price-asc">価格 安い順</option>
         <option value="price-desc">価格 高い順</option>
       </select>
@@ -295,7 +295,7 @@ tr:hover td { background: #fafbff; }
       <span class="sep">|</span>
       <label>並び替え</label>
       <select id="genre-sort" onchange="renderGenre()">
-        <option value="name-asc">商品名 A→Z</option>
+        <option value="name-asc">商品名 あ→ん</option>
         <option value="price-asc">価格 安い順</option>
         <option value="price-desc">価格 高い順</option>
       </select>
@@ -315,8 +315,9 @@ function normalizeProduct(item, index) {
   return {
     id:      item.id ?? index,
     name:    item.product_name    ?? '不明',
-    genre:   item.location        ?? item.genre ?? '未分類',
-    detail:  item.product_details ?? '',
+    description:   item.location        ?? item.genre ?? '未分類',
+    aisle_id:  item.id_aisle      ?? 0,
+    aisle_name:   item.aisle_name  ?? '不明',
     price:   Number(item.price)   || 0,
   };
 }
