@@ -279,11 +279,22 @@ const server = http.createServer(async (req, res) => {
     req.on("end", async () => {
       try {
         const { sentence } = JSON.parse(body);
-        const embeddings = await embed([sentence]);
+        const queryText = `検索クエリ: ${sentence}`;
+        // console.log(`検索クエリを受け取りました: ${queryText}`);
+        const embeddings = await embed([queryText]);
+        // console.log("ベクトル化した数列:");
+        // console.log(embeddings[0]);
 
         const result = await pool.query(`
-          SELECT * FROM products 
-          ORDER BY encoded_vector <=> '${embeddings[0].join(", ")}'::VECTOR 
+          SELECT 
+            p.id, 
+            p.name, 
+            p.description, 
+            p.price, 
+            a.aisle_name
+          FROM products p
+          LEFT JOIN aisles a ON p.aisle_id = a.id
+          ORDER BY p.encoded_vector <=> '[${embeddings[0].join(", ")}]'::VECTOR 
           LIMIT 10
         `);
 
