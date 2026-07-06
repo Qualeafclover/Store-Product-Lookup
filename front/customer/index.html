@@ -223,8 +223,8 @@ tr:hover td { background: #fafbff; }
 
 <div class="main">
 
-  <div id="load-error">⚠️ 商品データの取得に失敗しました。サーバーの接続を確認してください。</div>
-  <div id="not-found-error">⚠️ 商品データが見つかりませんでした (404)。</div>
+  <!-- <div id="load-error">⚠️ 商品データの取得に失敗しました。サーバーの接続を確認してください。</div>
+  <div id="not-found-error">⚠️ 商品データが見つかりませんでした (404)。</div> -->
 
   <!-- ホーム -->
   <div class="page active" id="page-home">
@@ -323,40 +323,42 @@ function normalizeProduct(item, index) {
 }
 //バックエンドの仕様によって変更
 
-async function loadProducts() {
-  document.getElementById('loading').style.display = 'flex';
-  try {
-    const res = await fetch('/api/customer/search', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    const data = await res.json();
-    PRODUCTS = (Array.isArray(data) ? data : data.products ?? [])
-      .map((item, i) => normalizeProduct(item, i));
-    GENRES = [...new Set(PRODUCTS.map(p => p.aisle_name))];
-  } catch (e) {
-    console.error('商品データの取得に失敗しました:', e);
-    document.getElementById('load-error').style.display = 'block';
-  } finally {
-    document.getElementById('loading').style.display = 'none';
-    initSelects();
-    renderAll();
-  }
-}
+// async function loadProducts() {
+//   document.getElementById('loading').style.display = 'flex';
+//   try {
+//     const res = await fetch('/api/customer/search', {
+//       method: 'GET',
+//       headers: { 'Content-Type': 'application/json' }
+//     });
+//     const data = await res.json();
+//     PRODUCTS = (Array.isArray(data) ? data : data.products ?? [])
+//       .map((item, i) => normalizeProduct(item, i));
+//     GENRES = [...new Set(PRODUCTS.map(p => p.aisle_name))];
+//   } catch (e) {
+//     console.error('商品データの取得に失敗しました:', e);
+//     document.getElementById('load-error').style.display = 'block';
+//   } finally {
+//     document.getElementById('loading').style.display = 'none';
+//     initSelects();
+//     renderAll();
+//   }
+// }
 
 // 追加: 全商品を読み込む代わりに、入力されたキーワードのみをサーバーに送り、
 // データベース側で絞り込んだ結果だけを受け取るための関数
 // 変更: 場所(location)も指定できるように拡張(場所から検索ページで使用)
 async function fetchSearchResults(keyword, location) {
-  const params = new URLSearchParams();
-  if (keyword)  params.set('keyword', keyword);   // 入力されたキーワードのみを送信
-  if (location) params.set('location', location); // 選択された場所のみを送信
+  // const params = new URLSearchParams();
+  // if (keyword)  params.set('keyword', keyword);   // 入力されたキーワードのみを送信
+  // if (location) params.set('location', location); // 選択された場所のみを送信
 
   // ※ /api/customer/search は検索専用のエンドポイントを想定しています。
   //   実際のバックエンドのパス・パラメータ名に合わせて変更してください。
+  const input = document.getElementById('home-search-input').value;
   const res = await fetch(`/api/customer/search`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sentence: input })
   });
   const data = await res.json();
   if (!res.ok) throw new Error(res.status);
@@ -520,7 +522,7 @@ function renderAll() {
   renderGenre();
 }
 
-loadProducts();
+// loadProducts();
 </script>
 </body>
 </html>
