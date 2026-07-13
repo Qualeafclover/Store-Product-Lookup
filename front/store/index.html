@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ショップ</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="android-chrome-192x192.png" sizes="192x192">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -481,33 +484,31 @@ function normalizeProduct(item, index) {
 }
 //バックエンドの仕様によって変更
 
-async function loadProducts() {
+function loadProducts() {
   document.getElementById('loading').style.display = 'flex';
-  try {
-    const res = await fetch('/api/store/products', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (!res.ok) {
-    throw new Error(res.status);
-    }
-    const data = await res.json();
+  $.ajax({
+    url: '/api/store/products',
+    type: 'GET',
+    dataType: 'json'
+  })
+  .done(function(data) {
     PRODUCTS = (Array.isArray(data) ? data : data.products ?? [])
       .map((item, i) => normalizeProduct(item, i));
     GENRES = [...new Set(PRODUCTS.map(p => p.aisle_name))];
-  } catch (e) {
-    if (e.message === '404') {
-     document.getElementById('not-found-error').style.display = 'block'; // 404用
+  })
+  .fail(function(jqXHR) {
+    if (jqXHR.status === 404) {
+      document.getElementById('not-found-error').style.display = 'block';
     } else {
-     document.getElementById('load-error').style.display = 'block'; // その他のエラー用
+      document.getElementById('load-error').style.display = 'block';
     }
-    console.error('商品データの取得に失敗しました:', e);
-    document.getElementById('load-error').style.display = 'block';
-  } finally {
+    console.error('商品データの取得に失敗しました:', jqXHR.status);
+  })
+  .always(function() {
     document.getElementById('loading').style.display = 'none';
     initSelects();
     renderAll();
-  }
+  });
 }
 
 // ===== ページ切り替え =====
@@ -649,15 +650,12 @@ function renderGenre() {
   });
 }
 
-// ===== 商品追加 =====
-async function submitAddProduct() {
+function submitAddProduct() {
   const name     = document.getElementById('add-name').value.trim();
   const detail   = document.getElementById('add-detail').value.trim();
   const location = document.getElementById('add-location').value.trim();
   const price    = document.getElementById('add-price').value;
 
-  //ここから追加
-  // バリデーション
   if (!name || !location || price === '') {
     showAddResult('error', '⚠️ 商品名・場所・価格は必須です。');
     return;
@@ -665,7 +663,7 @@ async function submitAddProduct() {
   if (Number(price) < 0) {
     showAddResult('error', '⚠️ 価格は0以上で入力してください。');
     return;
-  }  //サーバーに送る前に入力ミスがないか確認する
+  }
 
   const payload = {
     product_name:    name,
@@ -677,30 +675,28 @@ async function submitAddProduct() {
   const btn = document.getElementById('add-submit-btn');
   btn.disabled = true;
   btn.textContent = '送信中…';
-  //1回目の送信中はdisabledで以降の入力を受け付けない
 
-  try {
-    const res = await fetch('/api/store/add_product', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      showAddResult('success', `✅ 「${name}」を追加しました。`);
-      resetAddForm();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      showAddResult('error', `⚠️ 追加に失敗しました（${res.status}）${err.message ? '：' + err.message : ''}`);
-    }
-  } catch (e) {
-    console.error(e);
-    showAddResult('error', '⚠️ サーバーに接続できませんでした。');
-  } finally {
+  $.ajax({
+    url: '/api/store/add_product',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(payload),
+    dataType: 'json'
+  })
+  .done(function() {
+    showAddResult('success', `✅ 「${name}」を追加しました。`);
+    resetAddForm();
+    loadProducts();
+  })
+  .fail(function(jqXHR) {
+    const err = jqXHR.responseJSON || {};
+    showAddResult('error', `⚠️ 追加に失敗しました（${jqXHR.status}）${err.message ? '：' + err.message : ''}`);
+  })
+  .always(function() {
     btn.disabled = false;
     btn.textContent = '追加する';
-  }
-}  //finallyは必ず実行され、追加するを押さなければ動かない
+  });
+}
 
 function showAddResult(type, msg) {
   const el = document.getElementById('add-result');
