@@ -115,16 +115,15 @@ sudo docker compose up --build
 http://localhost:8080/store/index.html
 ```
 
-商品を追加から商品追加画面に移行します。
-![](shouhinntuika.png)
+「商品を追加」から商品追加画面に移行します。
+![](syouhinntuika.png)
 ![](ohagituika.png)
 
-追加された商品は一覧を表示から確認できます。
+追加された商品は「一覧を表示」から確認できます。
 ![](ohagihyouji.png)
 
-商品名や商品の場所から検索することもできます。
-//キーワードが入力され、結果がでた画像
-![](ohaginamae)
+「商品名から検索」や「場所から検索」から検索することもできます。
+![](ohaginamae.png)
 ![](ohagibasyo.png)
 
 
@@ -138,7 +137,7 @@ http://localhost:8080/store/index.html
 ![](ohagikyaku.png)
 場所や価格、商品の詳細などが分かります。
 
-```
+
 
 ## よく使うコマンド
 
