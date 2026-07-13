@@ -117,6 +117,11 @@ http://localhost:8080/store/index.html
 ```
 
 ## 5. 店舗 UI から商品追加
+ブラウザで店舗用URLにアクセスします。
+```text
+http://localhost:8080/store/index.html
+```
+![](images/shouhintuika.1.png)
 
 
 ## 6. 消費者 UI から商品検索
