@@ -109,11 +109,35 @@ Linux で権限エラーが出る場合:
 sudo docker compose up --build
 ```
 
-起動後、ブラウザで開きます。
-
+## 5. 店舗 UI から商品追加
+ブラウザで店舗用URLにアクセスします。
 ```text
-http://localhost:8080/customer/index.html
 http://localhost:8080/store/index.html
+```
+
+商品を追加から商品追加画面に移行します。
+![](shouhinntuika.png)
+![](ohagituika.png)
+
+追加された商品は一覧を表示から確認できます。
+![](ohagihyouji.png)
+
+商品名や商品の場所から検索することもできます。
+//キーワードが入力され、結果がでた画像
+![](ohaginamae)
+![](ohagibasyo.png)
+
+
+## 6. 消費者 UI から商品検索
+ブラウザで店舗用URLにアクセスします。
+```text
+http://localhost:8080/store/index.html
+```
+
+検索バーからほしい商品の名前を入力します。
+![](ohagikyaku.png)
+場所や価格、商品の詳細などが分かります。
+
 ```
 
 ## よく使うコマンド
