@@ -116,6 +116,15 @@ http://localhost:8080/customer/index.html
 http://localhost:8080/store/index.html
 ```
 
+## 5. 店舗 UI から商品追加
+
+
+## 6. 消費者 UI から商品検索
+
+
+---
+---
+
 ## よく使うコマンド
 
 停止:
